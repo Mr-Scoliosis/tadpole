@@ -25,8 +25,8 @@ class Pond:
         self.pondname = name
         self.frame = frame
         self.canvas = canvas
-        self.button = Button(self.frame, text="+", command=self.create_new)
-        self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")        
+        self.button = Button(self.frame, text="Create New LilyPad", command=self.create_new)
+        self.button.grid(row=2, column=1, padx=10, pady=10, sticky="w")        
         
     def create_new(self):
         #send pond data to ponda database
@@ -41,6 +41,7 @@ class Project:
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.textbox = Text(self.frame, height=1, width=15)
         self.textbox.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
+        self.textbox.focus_set()
         self.createpro = Button(self.frame, text="create new project", command=self.create)
         self.createpro.grid(row=len(self.ponds)+1,column=2, padx=10, pady=10, sticky="w")
 
@@ -50,19 +51,23 @@ class Project:
         
         self.button.configure(command=self.show_Ponds(self.button))
         self.textbox.delete("1.0", END)
-        self.button.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
+        self.button.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
         #send data to database
         #     
         self.ponds.append(self.button)
-        self.textbox.grid(row=len(self.ponds)+1)
-        self.createpro.grid(row=len(self.ponds)+1)
+        self.textbox.grid(column=len(self.ponds)+1)
+        self.createpro.grid(column=len(self.ponds)+2)
 
     def show_Ponds(self, selected_project):
         selected_project.configure(bg="#1aed84")
         #focus on this project and display all ponds involved
+        pond_frame = Frame(root)
+        pond_frame.place(relx=0.0, rely=0.1, anchor="nw", width=1100)
+        pond_frame.configure(bg="#00aaaa")
         for i in self.ponds:
             print(i)
-        Pond("new", self.frame, self.canvas)
+        
+        Pond("new", pond_frame, self.canvas)
         #add a generate random code thing for team invites
 
 
@@ -70,9 +75,6 @@ class TadPole():
     def __init__(self, root):
         self.root = root
         self.Projects = []
-        self.add_new = Button()
-        self.counter = 0
-
 
         self.can = Canvas(root, width=1000, height=700)
         self.can.configure(bg="#0cf7e0")
