@@ -12,15 +12,21 @@ class LilyPad:
     def __init__(self, name):
         self.tasks = []
         self.name = name
-        #send lilypad data to lilypad database
+        self.canvas = Canvas
+        self.button = Button(self.canvas, text="add a lilypad", command=self.create_new)
+        self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")
 
+        def create_new(self):
+            #upload new data to lilypad db
+            return
+            
 
 class Pond:
     def __init__(self, name, Canvas):
         self.lilypads = []
         self.pondname = name
         self.canvas = Canvas
-        self.button = Button(self.canvas, text="+", command=self.create_new)
+        self.button = Button(self.canvas, text="create new pond", command=self.create_new)
         self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")        
         
     def create_new(self):
@@ -35,7 +41,7 @@ class Project:
         Canvas.place(relx=0, rely=0, anchor="nw")
         self.textbox = Text(self.canvas, height=1, width=15) 
         self.textbox.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.canvas, text="+", command=self.create)
+        self.createpro = Button(self.canvas, text="create new project", command=self.create)
         self.createpro.grid(row=len(self.ponds)+1,column=2, padx=10, pady=10, sticky="w")
 
     def create(self):
