@@ -36,12 +36,19 @@ class Pond:
 class Project:
     def __init__(self, frame, canvas):
         self.ponds = []
+        self.frame = frame
+        self.canvas = canvas
+        self.frame.place(relx=0, rely=0, anchor="nw")
+        self.textbox = Text(self.frame, height=1, width=15)
         self.textbox.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
+        self.createpro = Button(self.frame, text="create new project", command=self.create)
         self.createpro.grid(row=len(self.ponds)+1,column=2, padx=10, pady=10, sticky="w")
 
     def create(self):
         #create a pond based on the name in the textbox
-        self.button = Button(self.frame, text=self.textbox.get("1.0", END), command=self.show_Ponds)
+        self.button = Button(self.frame, text=self.textbox.get("1.0", END))
+        
+        self.button.configure(command=self.show_Ponds(self.button))
         self.textbox.delete("1.0", END)
         self.button.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
         #send data to database
@@ -50,13 +57,12 @@ class Project:
         self.textbox.grid(row=len(self.ponds)+1)
         self.createpro.grid(row=len(self.ponds)+1)
 
-    def show_Ponds(self):
-        self.configure()
+    def show_Ponds(self, selected_project):
+        selected_project.configure(bg="#1aed84")
         #focus on this project and display all ponds involved
         for i in self.ponds:
             print(i)
-        createPond = Pond("Name", self.frame, self.canvas)
-        self.ponds.append(createPond)
+        Pond("new", self.frame, self.canvas)
         #add a generate random code thing for team invites
 
 
