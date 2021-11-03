@@ -11,8 +11,13 @@ class LilyPad:
     def __init__(self, name):
         self.tasks = []
         self.name = name
-        #send lilypad data to lilypad database
+        self.canvas = Canvas
+        self.button = Button(self.canvas, text="add a lilypad", command=self.create_new)
+        self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")
 
+        def create_new(self):
+            #upload new data to lilypad db
+            return
 
 class Pond:
     def __init__(self, name, frame, canvas):
