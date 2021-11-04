@@ -138,7 +138,7 @@ class Pond:
 
 
 class Project:
-    def __init__(self, name, frame, canvas, column):
+    def __init__(self, name, frame, canvas):
         self.ponds = []
         self.frame = frame
         self.pondframe = Frame(root)
@@ -146,7 +146,7 @@ class Project:
         self.pondframe.configure(bg="#0cf700")
         self.canvas = canvas
         self.name = name
-        self.column = column
+        self.Above = TadpoleUI
         self.currentPond = None
         # self.frame.place(relx=0, rely=0, anchor="nw")
         # self.textbox = Text(self.frame, height=1, width=15)
@@ -171,15 +171,35 @@ class Project:
     def addPond(self, pondtoadd):
         self.ponds.append(pondtoadd)
 
-    def displayAll(self):
+    def displayAll(self, column):
         self.button = Button(self.frame, text=self.name, command=self.view)
-        self.button.grid(row=1,column=self.column, padx=10, pady=10, sticky="w")
+        self.button.grid(row=1,column=column, padx=10, pady=10, sticky="w")
         # i = 0
         # while i < len(self.ponds):
         #     self.ponds[i].displayAll(i)
         #     i += 1
 
     def view(self):
+        if self.Above.currentProject != None:
+            self.Above.currentProject.pondframe.destroy()
+            for project in self.Above.Projects:
+                for pond in project.ponds:
+                    for lilypad in pond.lilypads:
+                        lilypad.taskframe.destroy()
+                        lilypad.taskframe = Frame(root)
+                        lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
+                        lilypad.taskframe.configure(bg="#00aaaa")
+                    pond.lilypadframe.destroy()
+                    pond.lilypadframe = Frame(root)
+                    pond.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
+                    pond.lilypadframe.configure(bg="#fff700")
+                project.pondframe.destroy()
+                project.pondframe = Frame(root)
+                project.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
+                project.pondframe.configure(bg="#0cf700")
+
+        self.Above.currentProject = self
+            
         i = 0
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
@@ -205,6 +225,7 @@ class TadPole():
     def __init__(self, root):
         self.root = root
         self.Projects = []
+        self.currentProject = None
 
         self.can = Canvas(root, width=1000, height=700)
         self.can.configure(bg="#0cf7e0")
@@ -229,7 +250,7 @@ class TadPole():
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
         ##these are to demonstrate downloading the projects from a database
-        TestProject = Project("Project", self.frame, self.can, len(self.Projects))
+        TestProject = Project("Project", self.frame, self.can)
         TestPond = Pond("Pond", self.can, TestProject)
         TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
         TestLilyPad3 = LilyPad("LilyPad3", self.can, TestPond)
@@ -243,6 +264,22 @@ class TadPole():
         TestTask2 = Task("Replace the other task please", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
         TestTask3 = Task("This is very cool", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
 
+        
+        TestProject2 = Project("Project2", self.frame, self.can)
+        TestPond10 = Pond("this is the second test", self.can, TestProject2)
+        
+        TestLilyPad10 = LilyPad("test part 2 lilypad boogaloo", self.can, TestPond10)
+        TestLilyPad11 = LilyPad("3 lilypad boogaloo", self.can, TestPond10)
+        TestTask10 = Task("other task please", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad10)
+        TestTask11 = Task("This is very cool", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad11)
+        TestLilyPad10.addTask(TestTask10)
+        TestLilyPad11.addTask(TestTask11)
+        TestPond10.addLilyPad(TestLilyPad10)
+        TestPond10.addLilyPad(TestLilyPad11)
+        TestProject2.addPond(TestPond10)
+        
+
+
         TestLilyPad.addTask(TestTask)
         TestLilyPad.addTask(TestTask4)
         TestLilyPad.addTask(TestTask5)
@@ -255,6 +292,7 @@ class TadPole():
         TestProject.addPond(TestPond)
         TestProject.addPond(TestPond2)
         self.Projects.append(TestProject)
+        self.Projects.append(TestProject2)
         self.showProjects()
         
         # self.Projects.append(Project(self.frame, self.can))
@@ -262,7 +300,7 @@ class TadPole():
     def showProjects(self):
         i = 0
         while i < len(self.Projects):
-            self.Projects[i].displayAll()
+            self.Projects[i].displayAll(i)
             i += 1
 
     def member(self):
