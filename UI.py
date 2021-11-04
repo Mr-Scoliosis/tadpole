@@ -148,25 +148,16 @@ class Project:
         self.name = name
         self.Above = TadpoleUI
         self.currentPond = None
-        # self.frame.place(relx=0, rely=0, anchor="nw")
-        # self.textbox = Text(self.frame, height=1, width=15)
-        # self.textbox.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
-        # self.textbox.focus_set()
-        # self.createpro = Button(self.frame, text="create new project", command=self.create)
-        # self.createpro.grid(row=len(self.ponds)+1,column=2, padx=10, pady=10, sticky="w")
 
-    # def create(self):
-        #create a pond based on the name in the textbox
-        # self.button = Button(self.frame, text=self.textbox.get("1.0", END))
-        
-        # self.button.configure(command=self.show_Ponds())
-        # self.textbox.delete("1.0", END)
-        # self.button.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
-        #send data to database
-        #     
-        # self.ponds.append(self.button)
-        # self.textbox.grid(column=len(self.ponds)+1)
-        # self.createpro.grid(column=len(self.ponds)+2)
+    def create(self):
+        # create a pond based on the name in the textbox
+        button = Project(self.textbox.get("1.0", END), self.frame, self.canvas)
+        self.textbox.delete("1.0", END)
+        # send data to database
+        self.Above.Projects.append(button)
+        self.Above.showProjects()
+        self.textbox.grid(column=len(self.ponds)+1)
+        self.createpro.grid(column=len(self.ponds)+2)
 
     def addPond(self, pondtoadd):
         self.ponds.append(pondtoadd)
@@ -174,10 +165,11 @@ class Project:
     def displayAll(self, column):
         self.button = Button(self.frame, text=self.name, command=self.view)
         self.button.grid(row=1,column=column, padx=10, pady=10, sticky="w")
-        # i = 0
-        # while i < len(self.ponds):
-        #     self.ponds[i].displayAll(i)
-        #     i += 1
+        if column == len(self.ponds):
+            self.textbox = Text(self.frame, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.frame, text="create new project", command=self.create)
+            self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
 
     def view(self):
         if self.Above.currentProject != None:
@@ -204,21 +196,7 @@ class Project:
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
             i += 1
-
-    def show_Ponds(self):
-        return
-        #focus on this project and display all ponds involved
-        # pond_frame = Frame(root)
-        # pond_frame.place(relx=0.0, rely=0.1, anchor="nw", width=1100)
-        # pond_frame.configure(bg="#00aaaa")
-        # for i in self.Projects:
-        #     i.configure(bg="#ffffff")
-        # Focused = self
-        # Focused.button.configure(bg="#1aed84", relief=SUNKEN)
         
-        # self.ponds.append(Pond("new", pond_frame, self.canvas))
-        # print(self.ponds)
-        #add a generate random code thing for team invites
 
 
 class TadPole():
@@ -250,6 +228,28 @@ class TadPole():
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
         ##these are to demonstrate downloading the projects from a database
+        self.testing()
+        self.showProjects()
+        
+        # self.Projects.append(Project(self.frame, self.can))
+
+    def showProjects(self):
+        i = 0
+        while i < len(self.Projects):
+            self.Projects[i].displayAll(i)
+            i += 1
+
+    def member(self):
+        #this definitely doesnt work
+        self.User1.destroy()
+        self.User2.destroy()
+        self.frame.place(relx=0, rely=0, anchor="nw")
+        self.testing()
+        self.showProjects()
+        
+
+    def testing(self):
+        ##these are to demonstrate downloading the projects from a database
         TestProject = Project("Project", self.frame, self.can)
         TestPond = Pond("Pond", self.can, TestProject)
         TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
@@ -277,9 +277,6 @@ class TadPole():
         TestPond10.addLilyPad(TestLilyPad10)
         TestPond10.addLilyPad(TestLilyPad11)
         TestProject2.addPond(TestPond10)
-        
-
-
         TestLilyPad.addTask(TestTask)
         TestLilyPad.addTask(TestTask4)
         TestLilyPad.addTask(TestTask5)
@@ -293,30 +290,6 @@ class TadPole():
         TestProject.addPond(TestPond2)
         self.Projects.append(TestProject)
         self.Projects.append(TestProject2)
-        self.showProjects()
-        
-        # self.Projects.append(Project(self.frame, self.can))
-
-    def showProjects(self):
-        i = 0
-        while i < len(self.Projects):
-            self.Projects[i].displayAll(i)
-            i += 1
-
-    def member(self):
-        #this definitely doesnt work
-        self.User1.destroy()
-        self.User2.destroy()
-        self.frame.place(relx=0, rely=0, anchor="nw")
-        self.Label1 = Label(self.frame, text="This is what the Team Member sees")
-        self.Label1.grid(row=1, column=1, padx=10, pady=10, sticky="w")
-        
-        # self.Label2 = Label(self.frame, text="I am still a God")
-        # self.Label2.grid(row=2, column=1, padx=10, pady=10, sticky="w")
-        
-        # self.add_new = Button(self.frame, text="+", command=self.create)
-        # self.add_new.grid(row=3,column=1, padx=10, pady=10, sticky="w")
-
 
 global Focused
 
