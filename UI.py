@@ -1,27 +1,32 @@
 from tkinter import *
 class Task:
-    def __init__(self, name, description, deadline, frame, Canvas):
+    def __init__(self, name, description, deadline, Canvas, lilypadAbove):
         self.name = name
         self.description = description
         self.deadline = deadline
-        self.frame = frame
         self.canvas = Canvas
+        self.lilypadAbove = lilypadAbove
         #send task data to task database
 
     def displayAll(self, column):
         self.column = column
-        self.button = Button(self.frame, text=self.name, command=self.view)
-        self.button.grid(row=4, column=self.column, padx=10, pady=10, sticky="w")
+        self.nameLabel = Label(self.lilypadAbove.taskframe, text="Name: " + self.name )
+        self.nameLabel.grid(row=1, column=self.column, padx=10, pady=0, sticky="w")
+        self.nameLabel = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description)
+        self.nameLabel.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
+        self.nameLabel = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
+        self.nameLabel.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
 
-    def view(self):
-        return
 
 class LilyPad:
-    def __init__(self, name, frame, Canvas):
+    def __init__(self, name, Canvas, pondAbove):
         self.tasks = []
         self.name = name
-        self.frame = frame
+        self.pondAbove = pondAbove
         self.canvas = Canvas
+        self.taskframe = Frame(root)
+        self.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
+        self.taskframe.configure(bg="#00aaaa")
         # self.button = Button(self.canvas, text="add a lilypad", command=self.create_new)
         # self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")
 
@@ -33,22 +38,43 @@ class LilyPad:
         return
 
     def view(self):
-        return
+        if self.pondAbove.currentlilypad != None:
+            self.pondAbove.currentlilypad.taskframe.destroy()
+            self.pondAbove.taskframe = Frame(root)
+            self.pondAbove.taskframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
+            self.pondAbove.taskframe.configure(bg="#00aaaa")
+            for lilypad in self.pondAbove.lilypads:
+                lilypad.taskframe.destroy()
+                lilypad.taskframe = Frame(root)
+                lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
+                lilypad.taskframe.configure(bg="#00aaaa")
 
-    def displayAll(self, column):
-        self.button = Button(self.frame, text=self.name, command=self.view)
-        self.button.grid(row=3,column=column, padx=10, pady=10, sticky="w")
+        self.pondAbove.currentlilypad = self
+        
         i = 0
         while i < len(self.tasks):
             self.tasks[i].displayAll(i)
             i += 1
 
+    def displayAll(self, column):
+        self.button = Button(self.pondAbove.lilypadframe, text=self.name, command=self.view)
+        self.button.grid(row=1, column=column, padx=10, pady=10, sticky="w")
+        # i = 0
+        # while i < len(self.tasks):
+        #     self.tasks[i].displayAll(i)
+        #     i += 1
+
 class Pond:
-    def __init__(self, name, frame, canvas):
+    def __init__(self, name, canvas, projectAbove):
         self.lilypads = []
         self.name = name
-        self.frame = frame
+        self.projectAbove = projectAbove
+        self.currentlilypad = None
+        self.lilypadframe = Frame(root)
+        self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
+        self.lilypadframe.configure(bg="#fff700")
         self.canvas = canvas
+
         # self.textbox = Text(self.frame, height=1, width=15)
         # self.textbox.grid(row=1,column=1, padx=10, pady=10, sticky="w")
         # # self.textbox.focus_set()
@@ -72,15 +98,31 @@ class Pond:
         self.lilypads.append(LilyPadtoadd)
 
     def displayAll(self, column):
-        self.button = Button(self.frame, text=self.name, command=self.view)
-        self.button.grid(row=2,column=column, padx=10, pady=10, sticky="w")
+        self.button = Button(self.projectAbove.pondframe, text=self.name, command=self.view)
+        self.button.grid(row=1,column=column, padx=10, pady=10, sticky="w")
+        # i = 0
+        # while i < len(self.lilypads):
+        #     self.lilypads[i].displayAll(i)
+        #     i += 1
+
+    def view(self):
+        if self.projectAbove.currentPond != None:
+            self.projectAbove.currentPond.lilypadframe.destroy()
+            self.lilypadframe = Frame(root)
+            self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
+            self.lilypadframe.configure(bg="#fff700")
+            for pond in self.projectAbove.ponds:
+                for lilypad in pond.lilypads:
+                    lilypad.taskframe.destroy()
+                    lilypad.taskframe = Frame(root)
+                    lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
+                    lilypad.taskframe.configure(bg="#00aaaa")
+
+        self.projectAbove.currentPond = self
         i = 0
         while i < len(self.lilypads):
             self.lilypads[i].displayAll(i)
             i += 1
-
-    def view(self):
-        return
 
     def show_lilypads(self):
         # selected_project.focus_set()
@@ -99,9 +141,13 @@ class Project:
     def __init__(self, name, frame, canvas, column):
         self.ponds = []
         self.frame = frame
+        self.pondframe = Frame(root)
+        self.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
+        self.pondframe.configure(bg="#0cf700")
         self.canvas = canvas
         self.name = name
         self.column = column
+        self.currentPond = None
         # self.frame.place(relx=0, rely=0, anchor="nw")
         # self.textbox = Text(self.frame, height=1, width=15)
         # self.textbox.grid(row=len(self.ponds)+1,column=1, padx=10, pady=10, sticky="w")
@@ -125,16 +171,19 @@ class Project:
     def addPond(self, pondtoadd):
         self.ponds.append(pondtoadd)
 
-    def displayAll(self, column):
+    def displayAll(self):
         self.button = Button(self.frame, text=self.name, command=self.view)
         self.button.grid(row=1,column=self.column, padx=10, pady=10, sticky="w")
+        # i = 0
+        # while i < len(self.ponds):
+        #     self.ponds[i].displayAll(i)
+        #     i += 1
+
+    def view(self):
         i = 0
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
             i += 1
-
-    def view(self):
-        return
 
     def show_Ponds(self):
         return
@@ -179,13 +228,32 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
-        TestTask = Task("Task", "description", "deadline", self.frame, self.can)
-        TestLilyPad = LilyPad("LilyPad", self.frame, self.can)
-        TestPond = Pond("Pond", self.frame, self.can)
+        ##these are to demonstrate downloading the projects from a database
         TestProject = Project("Project", self.frame, self.can, len(self.Projects))
+        TestPond = Pond("Pond", self.can, TestProject)
+        TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
+        TestLilyPad3 = LilyPad("LilyPad3", self.can, TestPond)
+        TestTask = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
+        TestTask4 = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
+        TestTask5 = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
+        TestPond2 = Pond("Pond2", self.can, TestProject)
+        
+        TestLilyPad2 = LilyPad("LilyPad2", self.can, TestPond2)
+        TestLilyPad4 = LilyPad("LilyPad4", self.can, TestPond2)
+        TestTask2 = Task("Replace the other task please", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
+        TestTask3 = Task("This is very cool", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
+
         TestLilyPad.addTask(TestTask)
+        TestLilyPad.addTask(TestTask4)
+        TestLilyPad.addTask(TestTask5)
+        TestLilyPad3.addTask(TestTask2)
+        TestLilyPad3.addTask(TestTask3)
         TestPond.addLilyPad(TestLilyPad)
+        TestPond.addLilyPad(TestLilyPad3)
+        TestPond2.addLilyPad(TestLilyPad2)
+        TestPond2.addLilyPad(TestLilyPad4)
         TestProject.addPond(TestPond)
+        TestProject.addPond(TestPond2)
         self.Projects.append(TestProject)
         self.showProjects()
         
@@ -194,7 +262,7 @@ class TadPole():
     def showProjects(self):
         i = 0
         while i < len(self.Projects):
-            self.Projects[i].displayAll(i+1)
+            self.Projects[i].displayAll()
             i += 1
 
     def member(self):
