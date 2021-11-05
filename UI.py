@@ -8,7 +8,8 @@ class Task:
         self.lilypadAbove = lilypadAbove
         #send task data to task database
 
-    def displayAll(self, column):
+    def view(self, column):
+        # creates the labels for a task
         self.column = column
         self.nameLabel = Label(self.lilypadAbove.taskframe, text="Name: " + self.name )
         self.nameLabel.grid(row=1, column=self.column, padx=10, pady=0, sticky="w")
@@ -16,6 +17,7 @@ class Task:
         self.nameLabel.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
         self.nameLabel = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
         self.nameLabel.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
+        ### this should probably have a button to change the current state of this task ###
 
 
 class LilyPad:
@@ -31,9 +33,11 @@ class LilyPad:
         # self.button.grid(row=1, column=2, padx=10, pady=10, sticky="w")
 
     def addTask(self, tasktoadd):
+        #adds a task to the tasks list
         self.tasks.append(tasktoadd)
 
     def create_new(self):
+        # this will be for creating a new lilypad using a textbox
         #upload new data to lilypad db
         return
 
@@ -50,19 +54,14 @@ class LilyPad:
                 lilypad.taskframe.configure(bg="#00aaaa")
 
         self.pondAbove.currentlilypad = self
-        
         i = 0
         while i < len(self.tasks):
-            self.tasks[i].displayAll(i)
+            self.tasks[i].view(i)
             i += 1
 
     def displayAll(self, column):
         self.button = Button(self.pondAbove.lilypadframe, text=self.name, command=self.view)
         self.button.grid(row=1, column=column, padx=10, pady=10, sticky="w")
-        # i = 0
-        # while i < len(self.tasks):
-        #     self.tasks[i].displayAll(i)
-        #     i += 1
 
 class Pond:
     def __init__(self, name, canvas, projectAbove):
@@ -151,13 +150,10 @@ class Project:
 
     def create(self):
         # create a pond based on the name in the textbox
-        button = Project(self.textbox.get("1.0", END), self.frame, self.canvas)
-        self.textbox.delete("1.0", END)
-        # send data to database
-        self.Above.Projects.append(button)
+        # self.Above.textbox.destroy() # these 2 delete the textbox and create new project buttons
+        # self.Above.createpro.destroy() # they are then recreated wh showProjects() is ran
+        ### send data to database
         self.Above.showProjects()
-        self.textbox.grid(column=len(self.ponds)+1)
-        self.createpro.grid(column=len(self.ponds)+2)
 
     def addPond(self, pondtoadd):
         self.ponds.append(pondtoadd)
@@ -165,11 +161,6 @@ class Project:
     def displayAll(self, column):
         self.button = Button(self.frame, text=self.name, command=self.view)
         self.button.grid(row=1,column=column, padx=10, pady=10, sticky="w")
-        if column == len(self.ponds):
-            self.textbox = Text(self.frame, height=1, width=15)
-            self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
-            self.createpro = Button(self.frame, text="create new project", command=self.create)
-            self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
 
     def view(self):
         if self.Above.currentProject != None:
@@ -204,6 +195,8 @@ class TadPole():
         self.root = root
         self.Projects = []
         self.currentProject = None
+        self.textbox = None
+        self.createpro = None
 
         self.can = Canvas(root, width=1000, height=700)
         self.can.configure(bg="#0cf7e0")
@@ -238,6 +231,20 @@ class TadPole():
         while i < len(self.Projects):
             self.Projects[i].displayAll(i)
             i += 1
+    
+        self.textbox = Text(self.frame, height=1, width=15)
+        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+        self.createpro = Button(self.frame, text="create new project", command=self.create)
+        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+
+    def create(self):
+        # create a pond based on the name in the textbox
+        button = Project(self.textbox.get("1.0", "end-1c"), self.frame, self.can)
+        self.textbox.destroy() # these 2 delete the textbox and create new project buttons
+        self.createpro.destroy() # they are then recreated wh showProjects() is ran
+        ### send data to database
+        self.Projects.append(button)
+        self.showProjects()
 
     def member(self):
         #this definitely doesnt work
@@ -249,7 +256,8 @@ class TadPole():
         
 
     def testing(self):
-        ##these are to demonstrate downloading the projects from a database
+        # return
+        #these are to demonstrate downloading the projects from a database
         TestProject = Project("Project", self.frame, self.can)
         TestPond = Pond("Pond", self.can, TestProject)
         TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
