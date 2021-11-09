@@ -13,11 +13,18 @@ class Task:
         self.column = column
         self.nameLabel = Label(self.lilypadAbove.taskframe, text="Name: " + self.name )
         self.nameLabel.grid(row=1, column=self.column, padx=10, pady=0, sticky="w")
-        self.nameLabel = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description)
-        self.nameLabel.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
-        self.nameLabel = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
-        self.nameLabel.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
+        self.nameLabel1 = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description)
+        self.nameLabel1.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
+        self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
+        self.nameLabel2.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
+        
+        self.Status = Label(self.lilypadAbove.taskframe, text="Status: ")
+        self.Status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
+        self.Status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
         ### this should probably have a button to change the current state of this task ###
+
+    def updateStatus(self):
+        return
 
 
 class LilyPad:
@@ -94,6 +101,7 @@ class Pond:
 
     def view(self):
         if self.projectAbove.currentPond != None:
+            # removing previously displayed tasks
             self.projectAbove.currentPond.lilypadframe.destroy()
             self.lilypadframe = Frame(root)
             self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
@@ -104,6 +112,10 @@ class Pond:
                     lilypad.taskframe = Frame(root)
                     lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
                     lilypad.taskframe.configure(bg="#00aaaa")
+                pond.lilypadframe.destroy()
+                pond.lilypadframe = Frame(root)
+                pond.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
+                pond.lilypadframe.configure(bg="#fff700")
 
         self.projectAbove.currentPond = self
         i = 0
@@ -131,6 +143,7 @@ class Project:
         self.ponds = []
         self.frame = frame
         self.pondframe = Frame(root)
+        self.members = []
         self.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
         self.pondframe.configure(bg="#0cf700")
         self.canvas = canvas
@@ -138,9 +151,17 @@ class Project:
         self.Above = TadpoleUI
         self.currentPond = None
 
+    def add_to_members(self, membering):
+        self.members.append(membering)
+
+    def showMembers(self, row):
+        self.label = Label(self.frame, text=self.name)
+        self.label.grid(row=row,column=1, padx=10, pady=10, sticky="w")
+
     def create(self):
         # create a pond based on the name in the textbox
-        button = Pond(self.textbox.get("1.0", "end-1c"), self.canvas, self.Above.currentProject)
+        new_Project = self.textbox.get("1.0", "end-1c")
+        button = Pond(new_Project, self.canvas, self.Above.currentProject)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         ### send data to database
@@ -156,6 +177,7 @@ class Project:
 
     def view(self):
         if self.Above.currentProject != None:
+            #removing previously displayed ponds, lilypads, and tasks
             self.Above.currentProject.pondframe.destroy()
             for project in self.Above.Projects:
                 for pond in project.ponds:
@@ -180,13 +202,31 @@ class Project:
             self.ponds[i].displayAll(i)
             i += 1
         
+        self.Above.memberFrame.destroy()
+        self.Above.memberFrame = Frame(root)
+        self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
+        self.Above.memberFrame.configure(bg="#00918a")
+
         self.textbox = Text(self.pondframe, height=1, width=15)
         self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
         self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
         self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
+        counter = 0
+        while counter < len(self.members):
+            self.members[counter].display(counter)
+            counter += 1 
         
+class member():
+    def __init__(self, name, projects, frame):
+        self.name = name
+        self.projects = projects
+        self.frame = frame
+        self.Above = TadpoleUI
 
-
+    def display(self, row):
+        self.label = Label(self.frame, text=self.name)
+        self.label.grid(row=row,column=1, padx=10, pady=10, sticky="w")
+        
 class TadPole():
     def __init__(self, root):
         self.root = root
@@ -194,9 +234,9 @@ class TadPole():
         self.currentProject = None
         self.textbox = None
         self.createpro = None
-
-        self.can = Canvas(root, width=1000, height=700)
+        self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
+        self.root.title("Simple Frog")
         self.can.pack()
 
         self.Textlines = Label(root, text="Made by Team 8", relief=SUNKEN)
@@ -217,9 +257,19 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
+        self.memberFrame = Frame(root)
+        self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
+        self.memberFrame.configure(bg="#00918a")
+
         ##these are to demonstrate downloading the projects from a database
         self.download()
         self.showProjects()
+
+    def showMembers(self):
+        counter = 0
+        while counter < len(self.members):
+            self.members[counter].display(counter)
+            counter += 1 
 
     def showProjects(self):
         i = 0
@@ -291,8 +341,13 @@ class TadPole():
         TestPond2.addLilyPad(TestLilyPad4)
         TestProject.addPond(TestPond)
         TestProject.addPond(TestPond2)
+        testMember = member("Testing", [], self.memberFrame)
+        testMember2 = member("Testing12", [], self.memberFrame)
+        TestProject.add_to_members(testMember)
+        TestProject.add_to_members(testMember2)
         self.Projects.append(TestProject)
         self.Projects.append(TestProject2)
+        
 
 global Focused
 
