@@ -8,11 +8,18 @@ try:
     cursor = connection.cursor(db.cursors.DictCursor)
 
 
-    # project_ID = cursor.execute("SELECT ID FROM Projects WHERE name = %s;", (project_name))
-    cursor.execute("INSERT INTO Users VALUES (%s, %s, %s)", ("username3", "email", "encrypted_password"))
-    # cursor.execute("INSERT INTO Projects(Leader, Name) VALUES(%s, %s);", ("cool epic leader", "cool epic project"))
-    #
-    # cursor.execute("INSERT INTO Teams(Name) VALUES(%s);", ("guy"))
+    user_name = "username2"
+
+    project_name = "cool epic projecz"
+
+    cursor.execute("INSERT INTO Projects(Leader, Name) VALUES(%s, %s);", (user_name, project_name))
+
+    project_ID = str(cursor.execute("SELECT ID FROM Projects WHERE name = %s;", (project_name)))
+    print(project_ID, type(project_ID))
+    cursor.execute("INSERT INTO Teams(Name, Project_ID) VALUES(%s, %s);", ("group of guys", project_ID))
+
+
+    # cursor.execute("INSERT INTO Users VALUES (%s, %s, %s)", (username, "email", "encrypted_password"))
     # cursor.execute("INSERT INTO Ponds(Name) VALUES(%s);", ("guy"))
 
     # cursor.execute("INSERT INTO Tasks(Name, Desc, Deadline) VALUES(%s, %s, %s);", ("name", "desc", "deadline"))
