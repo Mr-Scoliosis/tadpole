@@ -1,4 +1,5 @@
 from tkinter import *
+import pymysql as db
 class Task:
     def __init__(self, name, description, deadline, Canvas, lilypadAbove):
         self.name = name
@@ -82,7 +83,7 @@ class LilyPad:
         self.button.grid(row=1, column=column, padx=10, pady=10, sticky="w")
 
 class Pond:
-    def __init__(self, name, canvas, projectAbove):
+    def __init__(self, id, name, canvas, projectAbove):
         self.lilypads = []
         self.name = name
         self.projectAbove = projectAbove
@@ -91,6 +92,7 @@ class Pond:
         self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
         self.lilypadframe.configure(bg="#fff700")
         self.canvas = canvas
+        self.id = id
 
     def addLilyPad(self, LilyPadtoadd):
         self.lilypads.append(LilyPadtoadd)
@@ -129,7 +131,7 @@ class Pond:
         self.createpro.grid(row=1,column=len(self.lilypads)+2, padx=10, pady=10, sticky="w")
 
     def create(self):
-        # create a pond based on the name in the textbox
+        # create a lilypad based on the name in the textbox
         button = LilyPad(self.textbox.get("1.0", "end-1c"), self.canvas, self.projectAbove.currentPond)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
@@ -139,7 +141,7 @@ class Pond:
 
 
 class Project:
-    def __init__(self, name, frame, canvas):
+    def __init__(self, id, leader, name, frame, canvas):
         self.ponds = []
         self.frame = frame
         self.pondframe = Frame(root)
@@ -150,6 +152,8 @@ class Project:
         self.name = name
         self.Above = TadpoleUI
         self.currentPond = None
+        self.leader = leader
+        self.id = id
 
     def add_to_members(self, membering):
         self.members.append(membering)
@@ -298,12 +302,40 @@ class TadPole():
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.download()
         self.showProjects()
-        
+
+    def get_project_by_id(self, project_id):
+        print(self.Projects)
+        for i in self.Projects:
+            if i.id == project_id:
+                return i
 
     def download(self):
+        connection = db.connect(
+            host='cs1.ucc.ie',
+            user='ld8',
+            password='soodi',
+            database='cs2208_ld8')
+        cursor = connection.cursor(db.cursors.DictCursor)
+        cursor.execute("""SELECT * FROM Projects""")
+        for row in cursor.fetchall():
+            id = row['ID']
+            leader = row['Leader']
+            name = row['Name']
+            self.Projects.append(Project(id, leader, name, self.frame, self.can))
+        cursor.execute("""SELECT * FROM Ponds""")
+        for row in cursor.fetchall():
+            id = row['ID']
+            name = row['Name']
+            project_id = row['Project_ID']
+            project_above = self.get_project_by_id(project_id)
+            project_above.addPond(Pond(id, name, self.can, project_above))
+        testMember = member("Testing", [], self.memberFrame)
+        testMember2 = member("Testing12", [], self.memberFrame)
+        for i in self.Projects:
+            i.add_to_members(testMember)
         # return
         #these are to demonstrate downloading the projects from a database
-        TestProject = Project("Project", self.frame, self.can)
+        '''TestProject = Project("Project", self.frame, self.can)
         TestPond = Pond("Pond", self.can, TestProject)
         TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
         TestLilyPad3 = LilyPad("LilyPad3", self.can, TestPond)
@@ -346,7 +378,7 @@ class TadPole():
         TestProject.add_to_members(testMember)
         TestProject.add_to_members(testMember2)
         self.Projects.append(TestProject)
-        self.Projects.append(TestProject2)
+        self.Projects.append(TestProject2)'''
         
 
 global Focused
