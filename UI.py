@@ -76,15 +76,15 @@ class LilyPad:
         while i < len(self.tasks):
             self.tasks[i].view(i)
             i += 1
-        
-        self.textbox = Text(self.taskframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.textbox1 = Text(self.taskframe, height=1, width=15)
-        self.textbox1.grid(row=2,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.textbox2 = Text(self.taskframe, height=1, width=15)
-        self.textbox2.grid(row=3,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.taskframe, text="Create New Task", command=self.create)
-        self.createpro.grid(row=1,column=len(self.tasks)+2, padx=10, pady=10, sticky="w")
+        if self.pondAbove.projectAbove.Above.creation != False:
+            self.textbox = Text(self.taskframe, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.textbox1 = Text(self.taskframe, height=1, width=15)
+            self.textbox1.grid(row=2,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.textbox2 = Text(self.taskframe, height=1, width=15)
+            self.textbox2.grid(row=3,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.taskframe, text="Create New Task", command=self.create)
+            self.createpro.grid(row=1,column=len(self.tasks)+2, padx=10, pady=10, sticky="w")
 
     def displayAll(self, column):
         self.button = Button(self.pondAbove.lilypadframe, text=self.name, command=self.view)
@@ -131,11 +131,11 @@ class Pond:
         while i < len(self.lilypads):
             self.lilypads[i].displayAll(i)
             i += 1
-        
-        self.textbox = Text(self.lilypadframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
-        self.createpro.grid(row=1,column=len(self.lilypads)+2, padx=10, pady=10, sticky="w")
+        if self.projectAbove.Above.creation != False:
+                self.textbox = Text(self.lilypadframe, height=1, width=15)
+                self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
+                self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
+                self.createpro.grid(row=1,column=len(self.lilypads)+2, padx=10, pady=10, sticky="w")
 
     def create(self):
         # create a pond based on the name in the textbox
@@ -210,15 +210,15 @@ class Project:
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
             i += 1
+        if self.Above.creation != False:
+            self.textbox = Text(self.pondframe, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
+            self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
         
-        self.textbox = Text(self.pondframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
-        self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
-        
-        
-        self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
-        self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+        if self.Above.creation != False:
+            self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
+            self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
         counter = 0
         while counter < len(self.members):
             self.members[counter].display(counter+1, self.Above.memberFrame)
@@ -246,6 +246,7 @@ class TadPole():
         self.currentProject = None
         self.textbox = None
         self.createpro = None
+        self.creation = False
         self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
         self.root.title("Simple Frog")
@@ -268,6 +269,7 @@ class TadPole():
     def leader(self):
         self.User1.destroy()
         self.User2.destroy()
+        self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.memberFrame = Frame(root)
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
@@ -288,11 +290,11 @@ class TadPole():
         while i < len(self.Projects):
             self.Projects[i].displayAll(i)
             i += 1
-    
-        self.textbox = Text(self.frame, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.frame, text="create new project", command=self.create)
-        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        if self.creation != False:
+            self.textbox = Text(self.frame, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.frame, text="create new project", command=self.create)
+            self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
 
     def create(self):
         # create a pond based on the name in the textbox
