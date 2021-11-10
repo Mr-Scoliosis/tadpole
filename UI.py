@@ -160,7 +160,7 @@ class Project:
         self.Above = TadpoleUI
         self.currentPond = None
 
-    def add_to_members(self, membering):
+    def addMembers(self, membering):
         self.members.append(membering)
 
     def create(self):
@@ -283,7 +283,7 @@ class TadPole():
         counter = 0
         while counter < len(self.members):
             self.members[counter].display(counter)
-            counter += 1 
+            counter += 1
 
     def showProjects(self):
         i = 0
@@ -295,6 +295,14 @@ class TadPole():
             self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
             self.createpro = Button(self.frame, text="create new project", command=self.create)
             self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        else:
+            self.codeBox = Text(self.memberFrame, height=1, width=15)
+            self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+            self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
+            self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+
+    def joinProject(self):
+        return
 
     def create(self):
         # create a pond based on the name in the textbox
@@ -360,13 +368,13 @@ class TadPole():
         TestProject.addPond(TestPond2)
         testMember = member("Jimmy", [])
         testMember2 = member("Johnny", [])
-        TestProject.add_to_members(testMember)
-        TestProject.add_to_members(testMember2)
+        TestProject.addMembers(testMember)
+        TestProject.addMembers(testMember2)
         
         testMember3 = member("Luke", [])
         testMember4 = member("Andrew", [])
-        TestProject2.add_to_members(testMember3)
-        TestProject2.add_to_members(testMember4)
+        TestProject2.addMembers(testMember3)
+        TestProject2.addMembers(testMember4)
 
         self.Projects.append(TestProject)
         self.Projects.append(TestProject2)
