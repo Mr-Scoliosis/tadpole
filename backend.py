@@ -78,6 +78,8 @@ def downloadLilypads(pond):
 
 def downloadTasks(lilypad):
     cursor.execute("""SELECT * FROM Tasks""")
+    #the descrpt variable is written this way as description is a keyword in
+    #python, and this was the cleanest alternative
     for row in cursor.fetchall():
         id = row['ID']
         name = row['Name']
