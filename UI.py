@@ -44,6 +44,15 @@ def get_project_by_id(main, project_id):
         if i.id == project_id:
             return i
 
+def get_pond_by_id(self, pond_id):
+    for i in self.ponds:
+        if i.id == pond_id:
+            return i
+
+def get_lilypad_by_id(self, lilypad_id):
+    for i in self.lilypads:
+        if i.id == lilypad_id:
+            return i
 
 
 def downloadTeams(project):
@@ -88,13 +97,6 @@ def downloadPonds(project):
     return ponds
 
 
-def get_pond_by_id(self, pond_id):
-    for i in self.ponds:
-        if i.id == pond_id:
-            return i
-
-
-
 def downloadLilypads(pond):
     connection = db.connect(
         host='cs1.ucc.ie',
@@ -114,10 +116,7 @@ def downloadLilypads(pond):
     connection.close()
     return lilypads
 
-def get_lilypad_by_id(self, lilypad_id):
-    for i in self.Projects:
-        if i.id == lilypad_id:
-            return i
+
 
 
 
@@ -202,9 +201,10 @@ class LilyPad:
 
     def create(self):
         # create a task based on the name in the textbox
+
         button = Task(self.textbox.get("1.0", "end-1c"), self.textbox1.get("1.0", "end-1c"), self.textbox2.get("1.0", "end-1c"), self.canvas, self.pondAbove.currentlilypad)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
-        self.createpro.destroy() # they are then recreated wh showProjects() is ran
+        self.createpro.destroy() # they are then recreated when showProjects() is ran
         # send data to database
         self.tasks.append(button)
         self.view()
@@ -216,12 +216,15 @@ class LilyPad:
             self.pondAbove.taskframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
             self.pondAbove.taskframe.configure(bg="#00aaaa")
             for lilypad in self.pondAbove.lilypads:
+                lilypad.button.configure(bg="#ffffff")
                 lilypad.taskframe.destroy()
                 lilypad.taskframe = Frame(root)
                 lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
                 lilypad.taskframe.configure(bg="#00aaaa")
 
         self.pondAbove.currentlilypad = self
+        self.pondAbove.currentlilypad.button.configure(bg="#ccccaa")
+        
         self.tasks = downloadTasks(self)
         i = 0
         while i < len(self.tasks):
@@ -274,12 +277,14 @@ class Pond:
                     lilypad.taskframe = Frame(root)
                     lilypad.taskframe.place(relx = 0, rely = 0.3, anchor = "nw", width=1000)
                     lilypad.taskframe.configure(bg="#00aaaa")
+                pond.button.configure(bg="#ffffff")
                 pond.lilypadframe.destroy()
                 pond.lilypadframe = Frame(root)
                 pond.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
                 pond.lilypadframe.configure(bg="#eeeaaa")
 
         self.projectAbove.currentPond = self
+        self.projectAbove.currentPond.button.configure(bg="#aaccaa")
         self.lilypads = downloadLilypads(self)
         i = 0
         while i < len(self.lilypads):
@@ -357,12 +362,15 @@ class Project:
                 project.pondframe = Frame(root)
                 project.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
                 project.pondframe.configure(bg="#006400")
+                project.button.configure(bg="#ffffff")
             self.Above.memberFrame.destroy()
             self.Above.memberFrame = Frame(root)
             self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
             self.Above.memberFrame.configure(bg="#00918a")
 
         self.Above.currentProject = self
+        self.Above.currentProject.button.configure(bg="#aaaacc")
+
         self.ponds = downloadPonds(self)
         i = 0
         while i < len(self.ponds):
