@@ -1,14 +1,17 @@
 from tkinter import *
 import pymysql as db
+import backend
 # from UI import download
 
 
 
 class Task:
-    def __init__(self, name, description, deadline, Canvas, lilypadAbove):
+    def __init__(self, id, name, description, deadline, status, Canvas, lilypadAbove):
+        self.id = id
         self.name = name
         self.description = description
         self.deadline = deadline
+        self.deadline = status
         self.canvas = Canvas
         self.lilypadAbove = lilypadAbove
         # send task data to task database
@@ -145,10 +148,11 @@ class Pond:
 
 
 class Project:
-    def __init__(self, id, leader, name, frame, canvas):
+    def __init__(self, id, leader, name, frame, canvas, root):
         self.ponds = []
         self.frame = frame
-        self.pondframe = Frame(root)
+        self.root = root
+        self.pondframe = Frame(self.root)
         self.members = []
         self.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
         self.pondframe.configure(bg="#0cf700")
@@ -158,6 +162,7 @@ class Project:
         self.currentPond = None
         self.leader = leader
         self.id = id
+        print(self.id)
 
     def add_to_members(self, membering):
         self.members.append(membering)
@@ -269,8 +274,13 @@ class TadPole():
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
         self.memberFrame.configure(bg="#00918a")
 
+<<<<<<< Updated upstream
         # these are to demonstrate downloading the projects from a database
         self.download()
+=======
+        ##these are to demonstrate downloading the projects from a database
+        self.Projects = backend.downloadProjects(self)
+>>>>>>> Stashed changes
         self.showProjects()
 
     def showMembers(self):
@@ -304,11 +314,10 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
-        self.download()
+        self.Projects = backend.downloadProjects()
         self.showProjects()
 
-
-
-root = Tk()
-TadpoleUI = TadPole(root)
-root.mainloop()
+if __name__ =="__main__":
+    root = Tk()
+    TadpoleUI = TadPole(root)
+    root.mainloop()

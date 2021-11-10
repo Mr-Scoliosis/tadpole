@@ -14,7 +14,7 @@ try:
     teamSQL= "CREATE TABLE Teams ( ID int AUTO_INCREMENT, Name varchar(20) NOT NULL, Project_ID int NOT NULL, PRIMARY KEY (ID) );"
     pondSQL = "CREATE TABLE Ponds ( ID int AUTO_INCREMENT, Name varchar(20) NOT NULL, Project_ID int NOT NULL, PRIMARY KEY (ID) );"
     lilypadSQL = "CREATE TABLE Lilypads ( ID int AUTO_INCREMENT, Name varchar(20) NOT NULL, Pond_ID int NOT NULL, PRIMARY KEY (ID) );"
-    taskSQL = "CREATE TABLE Tasks ( ID int AUTO_INCREMENT, Name varchar(20) NOT NULL, Descrpt varchar(200) NOT NULL, Deadline DATETIME, Lilypad_ID int NOT NULL, PRIMARY KEY (ID) );"
+    taskSQL = "CREATE TABLE Tasks ( ID int AUTO_INCREMENT, Name varchar(20) NOT NULL, Descrpt varchar(200) NOT NULL, Deadline DATE, Status INT(3) NOT NULL, Lilypad_ID int NOT NULL, PRIMARY KEY (ID) );"
 
     cursor.execute(dropSQL)
 
