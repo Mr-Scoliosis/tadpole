@@ -11,7 +11,7 @@ class Task:
         self.deadline = deadline
         self.canvas = Canvas
         self.lilypadAbove = lilypadAbove
-        #send task data to task database
+        # send task data to task database
 
     def view(self, column):
         # creates the labels for a task
@@ -26,7 +26,7 @@ class Task:
         self.Status = Label(self.lilypadAbove.taskframe, text="Status: ")
         self.Status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
         self.Status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
-        ### this should probably have a button to change the current state of this task ###
+        # this should probably have a button to change the current state of this task
 
     def updateStatus(self):
         return
@@ -43,7 +43,7 @@ class LilyPad:
         self.taskframe.configure(bg="#00aaaa")
 
     def addTask(self, tasktoadd):
-        #adds a task to the tasks list
+        # adds a task to the tasks list
         self.tasks.append(tasktoadd)
 
     def create(self):
@@ -51,7 +51,7 @@ class LilyPad:
         button = Task(self.textbox.get("1.0", "end-1c"), self.textbox1.get("1.0", "end-1c"), self.textbox2.get("1.0", "end-1c"), self.canvas, self.pondAbove.currentlilypad)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
-        ### send data to database
+        # send data to database
         self.tasks.append(button)
         self.view()
 
@@ -139,7 +139,7 @@ class Pond:
         button = LilyPad(self.textbox.get("1.0", "end-1c"), self.canvas, self.projectAbove.currentPond)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
-        ### send data to database
+        # send data to database
         self.lilypads.append(button)
         self.view()
 
@@ -172,7 +172,7 @@ class Project:
         button = Pond(new_Project, self.canvas, self.Above.currentProject)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
-        ### send data to database
+        # send data to database
         self.ponds.append(button)
         self.view()
 
@@ -185,7 +185,7 @@ class Project:
 
     def view(self):
         if self.Above.currentProject != None:
-            #removing previously displayed ponds, lilypads, and tasks
+            # removing previously displayed ponds, lilypads, and tasks
             self.Above.currentProject.pondframe.destroy()
             for project in self.Above.Projects:
                 for pond in project.ponds:
@@ -269,7 +269,7 @@ class TadPole():
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
         self.memberFrame.configure(bg="#00918a")
 
-        ##these are to demonstrate downloading the projects from a database
+        # these are to demonstrate downloading the projects from a database
         self.download()
         self.showProjects()
 
@@ -295,12 +295,12 @@ class TadPole():
         button = Project(self.textbox.get("1.0", "end-1c"), self.frame, self.can)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
-        ### send data to database
+        # send data to database
         self.Projects.append(button)
         self.showProjects()
 
     def member(self):
-        #this definitely doesnt work
+        # this definitely doesnt work
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
