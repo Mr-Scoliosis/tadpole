@@ -74,9 +74,6 @@ def downloadTeams(project):
     connection.close()
 
 
-
-
-
 def downloadPonds(project):
     connection = db.connect(
         host='cs1.ucc.ie',
@@ -85,7 +82,7 @@ def downloadPonds(project):
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
     ponds = []
-    cursor.execute("""SELECT * FROM Ponds""")
+    cursor.execute("""SELECT * FROM Ponds p WHERE p.Project_ID = %i""" % project.id)
     for row in cursor.fetchall():
         id = row['ID']
         name = row['Name']
@@ -105,7 +102,7 @@ def downloadLilypads(pond):
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
     lilypads = []
-    cursor.execute("""SELECT * FROM Lilypads""")
+    cursor.execute("""SELECT * FROM Lilypads l WHERE l.Pond_ID = %i""" % pond.id)
     for row in cursor.fetchall():
         id = row['ID']
         name = row['Name']
@@ -117,9 +114,6 @@ def downloadLilypads(pond):
     return lilypads
 
 
-
-
-
 def downloadTasks(lilypad):
     connection = db.connect(
         host='cs1.ucc.ie',
@@ -128,7 +122,7 @@ def downloadTasks(lilypad):
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
     tasks = []
-    cursor.execute("""SELECT * FROM Tasks""")
+    cursor.execute("""SELECT * FROM Tasks t WHERE t.Lilypad_ID = %i""" % lilypad.id)
     #the descrpt variable is written this way as description is a keyword in
     #python, and this was the cleanest alternative
     for row in cursor.fetchall():
@@ -144,6 +138,21 @@ def downloadTasks(lilypad):
     connection.close()
     return tasks
 
+def insertProject(Leader, ProjectName):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""INSERT INTO Projects Values(%s, %s)""" % (Leader, ProjectName))
+    # cursor.execute("""SELECT ID FROM Projects WHERE """)
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return 
+
 
 class Task:
     def __init__(self, id, name, description, deadline, status, Canvas, lilypadAbove):
@@ -154,8 +163,7 @@ class Task:
         self.deadline = status
         self.canvas = Canvas
         self.status = 0
-        self.lilypadAbove = lilypadAbove
-        # send task data to task database
+        self.lilypadAbove = lilypadAbove#
 
     def view(self, column):
         # creates the labels for a task
@@ -179,15 +187,18 @@ class Task:
         ### send data to database
         if self.status == 0:
             self.nameLabel.configure(bg="#FFA500")
+
             self.status = 1
         elif self.status == 1:
             self.nameLabel.configure(bg="#00ff00")
             self.status = 2
 
 
+
 class LilyPad:
     def __init__(self, id, name, Canvas, pondAbove):
         self.tasks = []
+        self.id = id
         self.name = name
         self.pondAbove = pondAbove
         self.canvas = Canvas
@@ -328,8 +339,9 @@ class Project:
 
     def create(self):
         # create a pond based on the name in the textbox
-        new_Project = self.textbox.get("1.0", "end-1c")
-        button = Pond(0, new_Project, self.canvas, self.Above.currentProject)
+        newProjectName = self.textbox.get("1.0", "end-1c")
+        # id = insertPonds():
+        button = Pond(1, newProjectName, self.canvas, self.Above.currentProject)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
@@ -475,7 +487,10 @@ class TadPole():
 
     def create(self):
         # create a pond based on the name in the textbox
-        button = Project(self.textbox.get("1.0", "end-1c"), self.frame, self.can)
+        projectName = self.textbox.get("1.0", "end-1c")
+        id = insertProject("guy", projectName)
+        button = Project(id, "guy", projectName, self.frame, self.can, root)
+        
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
