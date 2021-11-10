@@ -1,5 +1,9 @@
 from tkinter import *
 import pymysql as db
+# from UI import download
+
+
+
 class Task:
     def __init__(self, name, description, deadline, Canvas, lilypadAbove):
         self.name = name
@@ -18,7 +22,7 @@ class Task:
         self.nameLabel1.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
         self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
         self.nameLabel2.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
-        
+
         self.Status = Label(self.lilypadAbove.taskframe, text="Status: ")
         self.Status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
         self.Status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
@@ -68,7 +72,7 @@ class LilyPad:
         while i < len(self.tasks):
             self.tasks[i].view(i)
             i += 1
-        
+
         self.textbox = Text(self.taskframe, height=1, width=15)
         self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
         self.textbox1 = Text(self.taskframe, height=1, width=15)
@@ -124,7 +128,7 @@ class Pond:
         while i < len(self.lilypads):
             self.lilypads[i].displayAll(i)
             i += 1
-        
+
         self.textbox = Text(self.lilypadframe, height=1, width=15)
         self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
         self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
@@ -200,12 +204,12 @@ class Project:
                 project.pondframe.configure(bg="#0cf700")
 
         self.Above.currentProject = self
-            
+
         i = 0
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
             i += 1
-        
+
         self.Above.memberFrame.destroy()
         self.Above.memberFrame = Frame(root)
         self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
@@ -218,8 +222,8 @@ class Project:
         counter = 0
         while counter < len(self.members):
             self.members[counter].display(counter)
-            counter += 1 
-        
+            counter += 1
+
 class member():
     def __init__(self, name, projects, frame):
         self.name = name
@@ -230,7 +234,7 @@ class member():
     def display(self, row):
         self.label = Label(self.frame, text=self.name)
         self.label.grid(row=row,column=1, padx=10, pady=10, sticky="w")
-        
+
 class TadPole():
     def __init__(self, root):
         self.root = root
@@ -255,7 +259,7 @@ class TadPole():
 
         self.User2 = Button(self.frame, text="Member", command=self.member)
         self.User2.grid(row=1,column=2, padx=10, pady=10)
-        
+
 
     def leader(self):
         self.User1.destroy()
@@ -273,14 +277,14 @@ class TadPole():
         counter = 0
         while counter < len(self.members):
             self.members[counter].display(counter)
-            counter += 1 
+            counter += 1
 
     def showProjects(self):
         i = 0
         while i < len(self.Projects):
             self.Projects[i].displayAll(i)
             i += 1
-    
+
         self.textbox = Text(self.frame, height=1, width=15)
         self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
         self.createpro = Button(self.frame, text="create new project", command=self.create)
@@ -303,90 +307,8 @@ class TadPole():
         self.download()
         self.showProjects()
 
-    def get_project_by_id(self, project_id):
-        print(self.Projects)
-        for i in self.Projects:
-            if i.id == project_id:
-                return i
 
-    def download(self):
-        connection = db.connect(
-            host='cs1.ucc.ie',
-            user='ld8',
-            password='soodi',
-            database='cs2208_ld8')
-        cursor = connection.cursor(db.cursors.DictCursor)
-        cursor.execute("""SELECT * FROM Projects""")
-        for row in cursor.fetchall():
-            id = row['ID']
-            leader = row['Leader']
-            name = row['Name']
-            self.Projects.append(Project(id, leader, name, self.frame, self.can))
-        cursor.execute("""SELECT * FROM Ponds""")
-        for row in cursor.fetchall():
-            id = row['ID']
-            name = row['Name']
-            project_id = row['Project_ID']
-            project_above = self.get_project_by_id(project_id)
-            project_above.addPond(Pond(id, name, self.can, project_above))
-        testMember = member("Testing", [], self.memberFrame)
-        testMember2 = member("Testing12", [], self.memberFrame)
-        for i in self.Projects:
-            i.add_to_members(testMember)
-        # return
-        #these are to demonstrate downloading the projects from a database
-        '''TestProject = Project("Project", self.frame, self.can)
-        TestPond = Pond("Pond", self.can, TestProject)
-        TestLilyPad = LilyPad("LilyPad", self.can, TestPond)
-        TestLilyPad3 = LilyPad("LilyPad3", self.can, TestPond)
-        TestTask = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
-        TestTask4 = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
-        TestTask5 = Task("Task name", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad)
-        TestPond2 = Pond("Pond2", self.can, TestProject)
-        
-        TestLilyPad2 = LilyPad("LilyPad2", self.can, TestPond2)
-        TestLilyPad4 = LilyPad("LilyPad4", self.can, TestPond2)
-        TestTask2 = Task("Replace the other task please", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
-        TestTask3 = Task("This is very cool", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad3)
-
-        
-        TestProject2 = Project("Project2", self.frame, self.can)
-        TestPond10 = Pond("this is the second test", self.can, TestProject2)
-        
-        TestLilyPad10 = LilyPad("test part 2 lilypad boogaloo", self.can, TestPond10)
-        TestLilyPad11 = LilyPad("3 lilypad boogaloo", self.can, TestPond10)
-        TestTask10 = Task("other task please", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad10)
-        TestTask11 = Task("This is very cool", "description of the things the task should accomplish", "01/01/2001", self.can, TestLilyPad11)
-        TestLilyPad10.addTask(TestTask10)
-        TestLilyPad11.addTask(TestTask11)
-        TestPond10.addLilyPad(TestLilyPad10)
-        TestPond10.addLilyPad(TestLilyPad11)
-        TestProject2.addPond(TestPond10)
-        TestLilyPad.addTask(TestTask)
-        TestLilyPad.addTask(TestTask4)
-        TestLilyPad.addTask(TestTask5)
-        TestLilyPad3.addTask(TestTask2)
-        TestLilyPad3.addTask(TestTask3)
-        TestPond.addLilyPad(TestLilyPad)
-        TestPond.addLilyPad(TestLilyPad3)
-        TestPond2.addLilyPad(TestLilyPad2)
-        TestPond2.addLilyPad(TestLilyPad4)
-        TestProject.addPond(TestPond)
-        TestProject.addPond(TestPond2)
-        testMember = member("Testing", [], self.memberFrame)
-        testMember2 = member("Testing12", [], self.memberFrame)
-        TestProject.add_to_members(testMember)
-        TestProject.add_to_members(testMember2)
-        self.Projects.append(TestProject)
-        self.Projects.append(TestProject2)'''
-        
-
-global Focused
 
 root = Tk()
 TadpoleUI = TadPole(root)
 root.mainloop()
-
-
-
-    
