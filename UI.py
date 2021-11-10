@@ -1,8 +1,149 @@
 from tkinter import *
 import pymysql as db
-import backend
-# from UI import download
+import time
+# import backend
 
+# connection = db.connect(
+#     host='cs1.ucc.ie',
+#     user='ld8',
+#     password='soodi',
+#     database='cs2208_ld8')
+# cursor = connection.cursor(db.cursors.DictCursor)
+
+# connection.commit()
+# cursor.close()
+# connection.close()
+
+
+
+
+def downloadProjects(self):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    
+    cursor.execute("""SELECT * FROM Projects""")
+    Projects = []
+    for row in cursor.fetchall():
+        id = row['ID']
+        leader = row['Leader']
+        name = row['Name']
+        Projects.append(Project(id, leader, name, self.frame, self.can, self.root))
+    
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return Projects
+
+def get_project_by_id(main, project_id):
+    for i in main.Projects:
+        if i.id == project_id:
+            return i
+
+
+
+def downloadTeams(project):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+
+    cursor.execute("""SELECT * FROM Teams""")
+    for row in cursor.fetchall():
+        id = row['ID']
+        name = row['Name']
+        project_above = project
+        project_above.addMembers(member(id, name, project.canvas, project_above))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
+
+
+
+def downloadPonds(project):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    ponds = []
+    cursor.execute("""SELECT * FROM Ponds""")
+    for row in cursor.fetchall():
+        id = row['ID']
+        name = row['Name']
+        project_above = project
+        ponds.append(Pond(id, name, project.canvas, project_above))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return ponds
+
+
+def get_pond_by_id(self, pond_id):
+    for i in self.ponds:
+        if i.id == pond_id:
+            return i
+
+
+
+def downloadLilypads(pond):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    lilypads = []
+    cursor.execute("""SELECT * FROM Lilypads""")
+    for row in cursor.fetchall():
+        id = row['ID']
+        name = row['Name']
+        pond_above = pond
+        lilypads.append(LilyPad(id, name, pond.canvas, pond_above))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return lilypads
+
+def get_lilypad_by_id(self, lilypad_id):
+    for i in self.Projects:
+        if i.id == lilypad_id:
+            return i
+
+
+
+def downloadTasks(lilypad):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    tasks = []
+    cursor.execute("""SELECT * FROM Tasks""")
+    #the descrpt variable is written this way as description is a keyword in
+    #python, and this was the cleanest alternative
+    for row in cursor.fetchall():
+        id = row['ID']
+        name = row['Name']
+        descrpt = row["Dscrpt"]
+        deadline = row["Deadline"]
+        status = row["Status"]
+        lilypad_above = lilypad
+        tasks.append(Task(id, name, descrpt, deadline, status, lilypad_above.canvas, lilypad_above))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return tasks
 
 
 class Task:
@@ -23,12 +164,10 @@ class Task:
         self.nameLabel.grid(row=1, column=self.column, padx=10, pady=0, sticky="w")
         self.nameLabel1 = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description)
         self.nameLabel1.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
-        self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + self.deadline)
+        self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + str(self.deadline))
         self.nameLabel2.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
-
-        self.Status = Label(self.lilypadAbove.taskframe, text="Status: ")
-        self.Status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
-        self.Status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
+        self.status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
+        self.status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
         # this should probably have a button to change the current state of this task
 
     def updateStatus(self):
@@ -36,7 +175,7 @@ class Task:
 
 
 class LilyPad:
-    def __init__(self, name, Canvas, pondAbove):
+    def __init__(self, id, name, Canvas, pondAbove):
         self.tasks = []
         self.name = name
         self.pondAbove = pondAbove
@@ -71,6 +210,7 @@ class LilyPad:
                 lilypad.taskframe.configure(bg="#00aaaa")
 
         self.pondAbove.currentlilypad = self
+        self.tasks = downloadTasks(self)
         i = 0
         while i < len(self.tasks):
             self.tasks[i].view(i)
@@ -127,6 +267,7 @@ class Pond:
                 pond.lilypadframe.configure(bg="#fff700")
 
         self.projectAbove.currentPond = self
+        self.lilypads = downloadLilypads(self)
         i = 0
         while i < len(self.lilypads):
             self.lilypads[i].displayAll(i)
@@ -162,7 +303,6 @@ class Project:
         self.currentPond = None
         self.leader = leader
         self.id = id
-        print(self.id)
 
     def add_to_members(self, membering):
         self.members.append(membering)
@@ -174,7 +314,7 @@ class Project:
     def create(self):
         # create a pond based on the name in the textbox
         new_Project = self.textbox.get("1.0", "end-1c")
-        button = Pond(new_Project, self.canvas, self.Above.currentProject)
+        button = Pond(0, new_Project, self.canvas, self.Above.currentProject)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
@@ -209,7 +349,7 @@ class Project:
                 project.pondframe.configure(bg="#0cf700")
 
         self.Above.currentProject = self
-
+        self.ponds = downloadPonds(self)
         i = 0
         while i < len(self.ponds):
             self.ponds[i].displayAll(i)
@@ -274,13 +414,8 @@ class TadPole():
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
         self.memberFrame.configure(bg="#00918a")
 
-<<<<<<< Updated upstream
-        # these are to demonstrate downloading the projects from a database
-        self.download()
-=======
         ##these are to demonstrate downloading the projects from a database
-        self.Projects = backend.downloadProjects(self)
->>>>>>> Stashed changes
+        self.Projects = downloadProjects(self)
         self.showProjects()
 
     def showMembers(self):
@@ -314,10 +449,11 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
-        self.Projects = backend.downloadProjects()
+        self.Projects = downloadProjects(self)
         self.showProjects()
 
-if __name__ =="__main__":
-    root = Tk()
-    TadpoleUI = TadPole(root)
-    root.mainloop()
+root = Tk()
+TadpoleUI = TadPole(root)
+root.mainloop()
+
+
