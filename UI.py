@@ -154,24 +154,36 @@ class Task:
         self.deadline = deadline
         self.deadline = status
         self.canvas = Canvas
+        self.status = 0
         self.lilypadAbove = lilypadAbove
         # send task data to task database
 
     def view(self, column):
         # creates the labels for a task
         self.column = column
-        self.nameLabel = Label(self.lilypadAbove.taskframe, text="Name: " + self.name )
+        self.nameLabel = Label(self.lilypadAbove.taskframe, text="Name: " + self.name, wraplength=100)
         self.nameLabel.grid(row=1, column=self.column, padx=10, pady=0, sticky="w")
-        self.nameLabel1 = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description)
+        if self.status == 1:
+            self.nameLabel.configure(bg="#FFA500")
+        elif self.status == 2:
+            self.nameLabel.configure(bg="#00ff00")
+        self.nameLabel1 = Label(self.lilypadAbove.taskframe,  text="Description: " + self.description, wraplength=100)
         self.nameLabel1.grid(row=2, column=self.column, padx=10, pady=0, sticky="w")
-        self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + str(self.deadline))
+
+        self.nameLabel2 = Label(self.lilypadAbove.taskframe, text="Deadline Date: " + str(self.deadline), wraplength=100)
         self.nameLabel2.grid(row=3, column=self.column, padx=10, pady=0, sticky="w")
-        self.status.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
-        self.status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
-        # this should probably have a button to change the current state of this task
+        
+        self.Status_Button = Button(self.lilypadAbove.taskframe, text="Change Status", command=self.updateStatus)
+        self.Status_Button.grid(row=4, column=self.column, padx=10, pady=0, sticky="w")
 
     def updateStatus(self):
-        return
+        ### send data to database
+        if self.status == 0:
+            self.nameLabel.configure(bg="#FFA500")
+            self.status = 1
+        elif self.status == 1:
+            self.nameLabel.configure(bg="#00ff00")
+            self.status = 2
 
 
 class LilyPad:
@@ -216,14 +228,15 @@ class LilyPad:
             self.tasks[i].view(i)
             i += 1
 
-        self.textbox = Text(self.taskframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.textbox1 = Text(self.taskframe, height=1, width=15)
-        self.textbox1.grid(row=2,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.textbox2 = Text(self.taskframe, height=1, width=15)
-        self.textbox2.grid(row=3,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.taskframe, text="Create New Task", command=self.create)
-        self.createpro.grid(row=1,column=len(self.tasks)+2, padx=10, pady=10, sticky="w")
+        if self.pondAbove.projectAbove.Above.creation != False:
+            self.textbox = Text(self.taskframe, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.textbox1 = Text(self.taskframe, height=1, width=15)
+            self.textbox1.grid(row=2,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.textbox2 = Text(self.taskframe, height=1, width=15)
+            self.textbox2.grid(row=3,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.taskframe, text="Create New Task", command=self.create)
+            self.createpro.grid(row=1,column=len(self.tasks)+2, padx=10, pady=10, sticky="w")
 
     def displayAll(self, column):
         self.button = Button(self.pondAbove.lilypadframe, text=self.name, command=self.view)
@@ -237,7 +250,7 @@ class Pond:
         self.currentlilypad = None
         self.lilypadframe = Frame(root)
         self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
-        self.lilypadframe.configure(bg="#fff700")
+        self.lilypadframe.configure(bg="#eeeaaa")
         self.canvas = canvas
         self.id = id
 
@@ -254,7 +267,7 @@ class Pond:
             self.projectAbove.currentPond.lilypadframe.destroy()
             self.lilypadframe = Frame(root)
             self.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
-            self.lilypadframe.configure(bg="#fff700")
+            self.lilypadframe.configure(bg="#eeeaaa")
             for pond in self.projectAbove.ponds:
                 for lilypad in pond.lilypads:
                     lilypad.taskframe.destroy()
@@ -264,7 +277,7 @@ class Pond:
                 pond.lilypadframe.destroy()
                 pond.lilypadframe = Frame(root)
                 pond.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
-                pond.lilypadframe.configure(bg="#fff700")
+                pond.lilypadframe.configure(bg="#eeeaaa")
 
         self.projectAbove.currentPond = self
         self.lilypads = downloadLilypads(self)
@@ -273,10 +286,11 @@ class Pond:
             self.lilypads[i].displayAll(i)
             i += 1
 
-        self.textbox = Text(self.lilypadframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
-        self.createpro.grid(row=1,column=len(self.lilypads)+2, padx=10, pady=10, sticky="w")
+        if self.projectAbove.Above.creation != False:
+                self.textbox = Text(self.lilypadframe, height=1, width=15)
+                self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
+                self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
+                self.createpro.grid(row=1,column=len(self.lilypads)+2, padx=10, pady=10, sticky="w")
 
     def create(self):
         # create a lilypad based on the name in the textbox
@@ -296,7 +310,7 @@ class Project:
         self.pondframe = Frame(self.root)
         self.members = []
         self.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
-        self.pondframe.configure(bg="#0cf700")
+        self.pondframe.configure(bg="#006400")
         self.canvas = canvas
         self.name = name
         self.Above = TadpoleUI
@@ -304,12 +318,8 @@ class Project:
         self.leader = leader
         self.id = id
 
-    def add_to_members(self, membering):
+    def addMembers(self, membering):
         self.members.append(membering)
-
-    def showMembers(self, row):
-        self.label = Label(self.frame, text=self.name)
-        self.label.grid(row=row,column=1, padx=10, pady=10, sticky="w")
 
     def create(self):
         # create a pond based on the name in the textbox
@@ -342,11 +352,15 @@ class Project:
                     pond.lilypadframe.destroy()
                     pond.lilypadframe = Frame(root)
                     pond.lilypadframe.place(relx = 0, rely = 0.2, anchor = "nw", width=1000)
-                    pond.lilypadframe.configure(bg="#fff700")
+                    pond.lilypadframe.configure(bg="#eeeaaa")
                 project.pondframe.destroy()
                 project.pondframe = Frame(root)
                 project.pondframe.place(relx = 0, rely = 0.1, anchor = "nw", width=1000)
-                project.pondframe.configure(bg="#0cf700")
+                project.pondframe.configure(bg="#006400")
+            self.Above.memberFrame.destroy()
+            self.Above.memberFrame = Frame(root)
+            self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
+            self.Above.memberFrame.configure(bg="#00918a")
 
         self.Above.currentProject = self
         self.ponds = downloadPonds(self)
@@ -355,31 +369,36 @@ class Project:
             self.ponds[i].displayAll(i)
             i += 1
 
-        self.Above.memberFrame.destroy()
-        self.Above.memberFrame = Frame(root)
-        self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
-        self.Above.memberFrame.configure(bg="#00918a")
-
-        self.textbox = Text(self.pondframe, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
-        self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
+        if self.Above.creation != False:
+            self.textbox = Text(self.pondframe, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
+            self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
+        
+        if self.Above.creation != False:
+            self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
+            self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
         counter = 0
         while counter < len(self.members):
-            self.members[counter].display(counter)
-            counter += 1
+            self.members[counter].display(counter+1, self.Above.memberFrame)
+            counter += 1 
+
+        
+    def randomNumber(self):
+        return
+
 
 class member():
-    def __init__(self, name, projects, frame):
+    def __init__(self, name, projects):
         self.name = name
         self.projects = projects
-        self.frame = frame
         self.Above = TadpoleUI
 
-    def display(self, row):
-        self.label = Label(self.frame, text=self.name)
-        self.label.grid(row=row,column=1, padx=10, pady=10, sticky="w")
 
+    def display(self, row, frame):
+        self.label = Label(frame, text=self.name)
+        self.label.grid(row=row, column=1, padx=10, pady=10, sticky="w")
+        
 class TadPole():
     def __init__(self, root):
         self.root = root
@@ -387,6 +406,7 @@ class TadPole():
         self.currentProject = None
         self.textbox = None
         self.createpro = None
+        self.creation = False
         self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
         self.root.title("Simple Frog")
@@ -409,6 +429,7 @@ class TadPole():
     def leader(self):
         self.User1.destroy()
         self.User2.destroy()
+        self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.memberFrame = Frame(root)
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
@@ -430,10 +451,19 @@ class TadPole():
             self.Projects[i].displayAll(i)
             i += 1
 
-        self.textbox = Text(self.frame, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.frame, text="create new project", command=self.create)
-        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        if self.creation != False:
+            self.textbox = Text(self.frame, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.frame, text="create new project", command=self.create)
+            self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        else:
+            self.codeBox = Text(self.memberFrame, height=1, width=15)
+            self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+            self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
+            self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+
+    def joinProject(self):
+        return
 
     def create(self):
         # create a pond based on the name in the textbox
@@ -449,8 +479,13 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
+
+        self.memberFrame = Frame(root)
+        self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
+        self.memberFrame.configure(bg="#00918a")
         self.Projects = downloadProjects(self)
         self.showProjects()
+        
 
 root = Tk()
 TadpoleUI = TadPole(root)
