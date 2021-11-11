@@ -24,7 +24,7 @@ def downloadProjects(self):
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-    cursor.execute("""SELECT * FROM Projects p CROSS JOIN Project_Membership pm WHERE pm.Project_ID = p.ID & pm.Username = %s""", (self.username))
+    cursor.execute("""SELECT * FROM Projects p CROSS JOIN Project_Membership pm WHERE pm.Project_ID = p.ID && pm.Username = %s""", (self.username))
     Projects = []
     for row in cursor.fetchall():
         id = row['ID']
@@ -53,7 +53,6 @@ def get_lilypad_by_id(self, lilypad_id):
         if i.id == lilypad_id:
             return i
 
-
 def downloadTeams(project):
     connection = db.connect(
         host='cs1.ucc.ie',
@@ -61,12 +60,13 @@ def downloadTeams(project):
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-
+    memberDisplay = []
     cursor.execute("""SELECT * FROM Users u cross Join Project_Membership pm WHERE u.Username = pm.Username and pm.Project_ID = %s;""", project.id)
     for row in cursor.fetchall():
         name = row['Username']
         project_above = project
-        project_above.addMembers(member(name, []))
+        memberDisplay.append(member(name, []))
+    project_above.addMembers(memberDisplay)
     connection.commit()
     cursor.close()
     connection.close()
@@ -232,18 +232,15 @@ def joinProject(UI, token):
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-    
     cursor.execute("""SELECT * FROM Projects WHERE Token = %s""", (token))
     Projects = []
     for row in cursor.fetchall():
         id = row['ID']
-        leader = row['Leader']
-        name = row['Name']
-        Projects.append(Project(id, leader, name, UI.frame, UI.can, UI.root))
-    
+    cursor.execute("""INSERT INTO Project_Membership Values(%s, %s)""", (UI.username, id))
     connection.commit()
     cursor.close()
     connection.close()
+    return Projects
 
 def addMember(self, project):
     connection = db.connect(
@@ -296,6 +293,10 @@ class Task:
             self.nameLabel.configure(bg="#00ff00")
             updateTaskStatus(self.id, 2)
             self.status = 2
+        elif self.status == 2:
+            self.nameLabel.configure(bg="#eeeeee")
+            updateTaskStatus(self.id, 0)
+            self.status = 0
 
 
 
@@ -444,7 +445,7 @@ class Project:
         self.id = id
 
     def addMembers(self, membering):
-        self.members.append(membering)
+        self.members = membering
 
     def create(self):
         # create a pond based on the name in the textbox
@@ -603,6 +604,7 @@ class TadPole():
     def joinProject(self):
         joinCode = self.codeBox.get("1.0", "end-1c")
         joinProject(self, joinCode)
+        self.Projects = downloadProjects(self)
         self.showProjects()
         return
 
