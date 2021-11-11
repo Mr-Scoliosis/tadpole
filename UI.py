@@ -1,5 +1,6 @@
 from tkinter import *
 import pymysql as db
+import random
 # import time
 
     # connection = db.connect(
@@ -23,8 +24,7 @@ def downloadProjects(self):
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-    
-    cursor.execute("""SELECT * FROM Projects""")
+    cursor.execute("""SELECT * FROM Projects p CROSS JOIN Project_Membership pm WHERE pm.Project_ID = p.ID & pm.Username = %s""", (self.username))
     Projects = []
     for row in cursor.fetchall():
         id = row['ID']
@@ -143,7 +143,7 @@ def insertProject(leaderName, projectName):
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-    cursor.execute("""INSERT INTO Projects(Leader, Name) Values(%s, %s)""", (leaderName, projectName))
+    cursor.execute("""INSERT INTO Projects(Leader, Name, Token) Values(%s, %s, %s)""", (leaderName, projectName, None))
     cursor.execute("""SELECT MAX(ID) FROM Projects""")
     for row in cursor.fetchall():
         id = row["MAX(ID)"]
@@ -212,7 +212,51 @@ def updateTaskStatus(taskID, Status):
     cursor.close()
     connection.close()
 
+def updateInviteCode(project, randomCode):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""Update Projects p SET Token = %s WHERE p.ID = %s""", (randomCode, project.id))
+    connection.commit()
+    cursor.close()
+    connection.close()
 
+
+def joinProject(UI, token):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    
+    cursor.execute("""SELECT * FROM Projects WHERE Token = %s""", (token))
+    Projects = []
+    for row in cursor.fetchall():
+        id = row['ID']
+        leader = row['Leader']
+        name = row['Name']
+        Projects.append(Project(id, leader, name, UI.frame, UI.can, UI.root))
+    
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def addMember(self, project):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""INSERT INTO Project_Membership Values(%s, %s)""", (self.username, project.id))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return
 
 class Task:
     def __init__(self, id, name, description, deadline, status, Canvas, lilypadAbove):
@@ -222,7 +266,7 @@ class Task:
         self.deadline = deadline
         self.canvas = Canvas
         self.status = status
-        self.lilypadAbove = lilypadAbove#
+        self.lilypadAbove = lilypadAbove
 
     def view(self, column):
         # creates the labels for a task
@@ -471,7 +515,14 @@ class Project:
 
         
     def randomNumber(self):
-        return
+        randomCode = ""
+        for i in range(6):
+            randomCode += str(random.randint(0, 6))
+        # send randomCode to database
+        updateInviteCode(self, randomCode)
+        #add text label displaying to the leader what the code is
+        self.randomCode = Label(self.Above.memberFrame, text=randomCode)
+        self.randomCode.grid(row=0, column=2, padx=10, pady=10, sticky="w")
 
 
 class member():
@@ -550,14 +601,17 @@ class TadPole():
             self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
 
     def joinProject(self):
+        joinCode = self.codeBox.get("1.0", "end-1c")
+        joinProject(self, joinCode)
+        self.showProjects()
         return
 
     def create(self):
         # create a pond based on the name in the textbox
         projectName = self.textbox.get("1.0", "end-1c")
-        id = insertProject(self.username, projectName)
+        id = insertProject(self.username, projectName)        
         projectButton = Project(id, self.username, projectName, self.frame, self.can, root)
-        
+        addMember(self, projectButton)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
