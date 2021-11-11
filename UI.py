@@ -1,18 +1,17 @@
 from tkinter import *
 import pymysql as db
-import time
-# import backend
+# import time
 
-# connection = db.connect(
-#     host='cs1.ucc.ie',
-#     user='ld8',
-#     password='soodi',
-#     database='cs2208_ld8')
-# cursor = connection.cursor(db.cursors.DictCursor)
+    # connection = db.connect(
+    #     host='cs1.ucc.ie',
+    #     user='ld8',
+    #     password='soodi',
+    #     database='cs2208_ld8')
+    # cursor = connection.cursor(db.cursors.DictCursor)
 
-# connection.commit()
-# cursor.close()
-# connection.close()
+    # connection.commit()
+    # cursor.close()
+    # connection.close()
 
 
 
@@ -138,20 +137,82 @@ def downloadTasks(lilypad):
     connection.close()
     return tasks
 
-def insertProject(Leader, ProjectName):
+def insertProject(leaderName, projectName):
     connection = db.connect(
         host='cs1.ucc.ie',
         user='ld8',
         password='soodi',
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
-    cursor.execute("""INSERT INTO Projects Values(%s, %s)""" % (Leader, ProjectName))
-    # cursor.execute("""SELECT ID FROM Projects WHERE """)
-
+    cursor.execute("""INSERT INTO Projects(Leader, Name) Values(%s, %s)""", (leaderName, projectName))
+    cursor.execute("""SELECT MAX(ID) FROM Projects""")
+    for row in cursor.fetchall():
+        id = row["MAX(ID)"]
     connection.commit()
     cursor.close()
     connection.close()
-    return 
+    return id
+
+def insertPond(pondName, projectID):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""INSERT INTO Ponds(Name, Project_ID) Values(%s, %s)""", (pondName, projectID))
+    cursor.execute("""SELECT MAX(ID) FROM Ponds""")
+    for row in cursor.fetchall():
+        id = row["MAX(ID)"]
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return id
+
+def insertLilyPad(lilypadName, pondID):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""INSERT INTO Lilypads(Name, Pond_ID) Values(%s, %s)""", (lilypadName, pondID))
+    cursor.execute("""SELECT MAX(ID) FROM Lilypads""")
+    for row in cursor.fetchall():
+        id = row["MAX(ID)"]
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return id
+
+def insertTask(taskName, taskDescription, taskDeadline, pondID):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""INSERT INTO Tasks(Name, Dscrpt, Deadline, Status, Lilypad_ID) Values(%s, %s, %s, %s, %s)""", (taskName, taskDescription, taskDeadline, 0, pondID))
+    cursor.execute("""SELECT MAX(ID) FROM Tasks""")
+    for row in cursor.fetchall():
+        id = row["MAX(ID)"]
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return id
+
+def updateTaskStatus(taskID, Status):
+    connection = db.connect(
+        host='cs1.ucc.ie',
+        user='ld8',
+        password='soodi',
+        database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    cursor.execute("""Update Tasks SET Status = %s WHERE ID = %s""", (Status, taskID))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
 
 
 class Task:
@@ -160,9 +221,8 @@ class Task:
         self.name = name
         self.description = description
         self.deadline = deadline
-        self.deadline = status
         self.canvas = Canvas
-        self.status = 0
+        self.status = status
         self.lilypadAbove = lilypadAbove#
 
     def view(self, column):
@@ -187,10 +247,11 @@ class Task:
         ### send data to database
         if self.status == 0:
             self.nameLabel.configure(bg="#FFA500")
-
+            updateTaskStatus(self.id, 1)
             self.status = 1
         elif self.status == 1:
             self.nameLabel.configure(bg="#00ff00")
+            updateTaskStatus(self.id, 2)
             self.status = 2
 
 
@@ -212,8 +273,11 @@ class LilyPad:
 
     def create(self):
         # create a task based on the name in the textbox
-
-        button = Task(self.textbox.get("1.0", "end-1c"), self.textbox1.get("1.0", "end-1c"), self.textbox2.get("1.0", "end-1c"), self.canvas, self.pondAbove.currentlilypad)
+        taskName = self.textbox.get("1.0", "end-1c")
+        taskDescription = self.textbox1.get("1.0", "end-1c")
+        taskDeadline = self.textbox2.get("1.0", "end-1c")
+        id = insertTask(taskName, taskDescription, taskDeadline, self.id)
+        button = Task(id, taskName, taskDescription, taskDeadline, 0, self.canvas, self.pondAbove.currentlilypad)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated when showProjects() is ran
         # send data to database
@@ -245,7 +309,7 @@ class LilyPad:
         if self.pondAbove.projectAbove.Above.creation != False:
             self.textbox = Text(self.taskframe, height=1, width=15)
             self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
-            self.textbox1 = Text(self.taskframe, height=1, width=15)
+            self.textbox1 = Text(self.taskframe, height=3, width=15)
             self.textbox1.grid(row=2,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
             self.textbox2 = Text(self.taskframe, height=1, width=15)
             self.textbox2.grid(row=3,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
@@ -310,11 +374,13 @@ class Pond:
 
     def create(self):
         # create a lilypad based on the name in the textbox
-        button = LilyPad(self.textbox.get("1.0", "end-1c"), self.canvas, self.projectAbove.currentPond)
+        newLilyPadName = self.textbox.get("1.0", "end-1c")
+        #send info to database
+        id = insertLilyPad(newLilyPadName, self.id)
+        lilyPadButton = LilyPad(id, newLilyPadName, self.canvas, self.projectAbove.currentPond)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
-        # send data to database
-        self.lilypads.append(button)
+        self.lilypads.append(lilyPadButton)
         self.view()
 
 
@@ -339,13 +405,13 @@ class Project:
 
     def create(self):
         # create a pond based on the name in the textbox
-        newProjectName = self.textbox.get("1.0", "end-1c")
-        # id = insertPonds():
-        button = Pond(1, newProjectName, self.canvas, self.Above.currentProject)
+        newPondName = self.textbox.get("1.0", "end-1c")
+        id = insertPond(newPondName, self.id)
+        pondButton = Pond(id, newPondName, self.canvas, self.Above.currentProject)
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
-        self.ponds.append(button)
+        self.ponds.append(pondButton)
         self.view()
 
     def addPond(self, pondtoadd):
@@ -450,6 +516,7 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.creation = True
+        self.username = "guy"
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.memberFrame = Frame(root)
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
@@ -488,13 +555,13 @@ class TadPole():
     def create(self):
         # create a pond based on the name in the textbox
         projectName = self.textbox.get("1.0", "end-1c")
-        id = insertProject("guy", projectName)
-        button = Project(id, "guy", projectName, self.frame, self.can, root)
+        id = insertProject(self.username, projectName)
+        projectButton = Project(id, self.username, projectName, self.frame, self.can, root)
         
         self.textbox.destroy() # these 2 delete the textbox and create new project buttons
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
-        self.Projects.append(button)
+        self.Projects.append(projectButton)
         self.showProjects()
 
     def member(self):
@@ -502,6 +569,7 @@ class TadPole():
         self.User1.destroy()
         self.User2.destroy()
         self.frame.place(relx=0, rely=0, anchor="nw")
+        self.username = "Luke"
 
         self.memberFrame = Frame(root)
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
