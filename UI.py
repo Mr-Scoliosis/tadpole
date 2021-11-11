@@ -62,12 +62,11 @@ def downloadTeams(project):
         database='cs2208_ld8')
     cursor = connection.cursor(db.cursors.DictCursor)
 
-    cursor.execute("""SELECT * FROM Teams""")
+    cursor.execute("""SELECT * FROM Users u cross Join Project_Membership pm WHERE u.Username = pm.Username and pm.Project_ID = %s;""", project.id)
     for row in cursor.fetchall():
-        id = row['ID']
-        name = row['Name']
+        name = row['Username']
         project_above = project
-        project_above.addMembers(member(id, name, project.canvas, project_above))
+        project_above.addMembers(member(name, []))
     connection.commit()
     cursor.close()
     connection.close()
@@ -464,6 +463,7 @@ class Project:
         if self.Above.creation != False:
             self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
             self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+        downloadTeams(self)
         counter = 0
         while counter < len(self.members):
             self.members[counter].display(counter+1, self.Above.memberFrame)
