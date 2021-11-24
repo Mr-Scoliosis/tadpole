@@ -1,7 +1,7 @@
 from tkinter import *
 import pymysql as db
 import random
-import logintest
+from functools import partial
 # import time
 
     # connection = db.connect(
@@ -351,7 +351,7 @@ class LilyPad:
             self.tasks[i].view(i)
             i += 1
 
-        if self.pondAbove.projectAbove.Above.creation != False:
+        if self.pondAbove.projectAbove.leader == self.pondAbove.projectAbove.Above.username:
             self.textbox = Text(self.taskframe, height=1, width=15)
             self.textbox.grid(row=1,column=len(self.tasks)+1, padx=10, pady=10, sticky="w")
             self.textbox1 = Text(self.taskframe, height=3, width=15)
@@ -411,7 +411,7 @@ class Pond:
             self.lilypads[i].displayAll(i)
             i += 1
 
-        if self.projectAbove.Above.creation != False:
+        if self.projectAbove.leader == self.projectAbove.Above.username:
                 self.textbox = Text(self.lilypadframe, height=1, width=15)
                 self.textbox.grid(row=1,column=len(self.lilypads)+1, padx=10, pady=10, sticky="w")
                 self.createpro = Button(self.lilypadframe, text="Create New LilyPad", command=self.create)
@@ -500,15 +500,14 @@ class Project:
             self.ponds[i].displayAll(i)
             i += 1
 
-        if self.Above.creation != False:
+        if self.Above.username == self.leader:
             self.textbox = Text(self.pondframe, height=1, width=15)
             self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
             self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
             self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
         
-        if self.Above.creation != False:
-            self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
-            self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+        self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
+        self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
         downloadTeams(self)
         counter = 0
         while counter < len(self.members):
@@ -565,17 +564,45 @@ class TadPole():
         self.User2.grid(row=1,column=2, padx=10, pady=10)'''
 
         #username label and text entry box
-        usernameLabel = Label(self.frame, text="Username").grid(row=0,column=0)
+        self.usernameLabel = Label(self.frame, text="Username")
+        self.usernameLabel.grid(row=0,column=0)
         username = StringVar()
-        usernameEntry = Entry(self.frame, textvariable=username).grid(row=0, column=1)  
+        self.usernameEntry = Entry(self.frame, textvariable=username)
+        self.usernameEntry.grid(row=0, column=1)  
         #password label and password entry box
-        passwordLabel = Label(self.frame,text="Password").grid(row=1, column=0)  
+        self.passwordLabel = Label(self.frame,text="Password")
+        self.passwordLabel.grid(row=1, column=0)  
         password = StringVar()
-        passwordEntry = Entry(self.frame, textvariable=password, show='*').grid(row=1, column=1)  
-
+        self.passwordEntry = Entry(self.frame, textvariable=password, show='*')
+        self.passwordEntry.grid(row=1, column=1)  
         #login button
-        loginButton = Button(self.frame, text="Login", command=logintest.login(username, password)).grid(row=4, column=0)
+        loginCommand = partial(self.login, username, password)
+        self.loginButton = Button(self.frame, text="Login", command=loginCommand)
+        self.loginButton.grid(row=4, column=1)
+        #register
+        self.RegisterButton = Button(self.frame, text="Register", command=loginCommand)
+        self.RegisterButton.grid(row=6, column=1)
 
+    
+    def login(self, username, password):
+        username = username.get()
+        password = password.get()
+        connection = db.connect(
+            host='cs1.ucc.ie',
+            user='ld8',
+            password='soodi',
+            database='cs2208_ld8')
+        cursor = connection.cursor(db.cursors.DictCursor)
+        cursor.execute("""SELECT * FROM Users
+                            WHERE Username = %s
+                            AND Pword = %s""", (username, password))
+        if cursor.rowcount == 0:
+            print("Error: incorrect user name or password")
+        else:
+            print("Success!")
+            self.member(username)
+        cursor.close()
+        connection.close()
 
     def leader(self):
         self.User1.destroy()
@@ -603,16 +630,15 @@ class TadPole():
             self.Projects[i].displayAll(i)
             i += 1
 
-        if self.creation != False:
-            self.textbox = Text(self.frame, height=1, width=15)
-            self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
-            self.createpro = Button(self.frame, text="create new project", command=self.create)
-            self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
-        else:
-            self.codeBox = Text(self.memberFrame, height=1, width=15)
-            self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
-            self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
-            self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+        self.textbox = Text(self.frame, height=1, width=15)
+        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+        self.createpro = Button(self.frame, text="Create New Project", command=self.create)
+        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+
+        self.codeBox = Text(self.memberFrame, height=1, width=15)
+        self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+        self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
+        self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
 
     def joinProject(self):
         joinCode = self.codeBox.get("1.0", "end-1c")
@@ -633,12 +659,16 @@ class TadPole():
         self.Projects.append(projectButton)
         self.showProjects()
 
-    def member(self):
+    def member(self, username):
         # this definitely doesnt work
-        self.User1.destroy()
-        self.User2.destroy()
+        self.usernameLabel.destroy()
+        self.usernameEntry.destroy()
+        self.passwordLabel.destroy()
+        self.passwordEntry.destroy()
+        self.loginButton.destroy()
+        # self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
-        self.username = "Luke"
+        self.username = username
 
         self.memberFrame = Frame(root)
         self.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
