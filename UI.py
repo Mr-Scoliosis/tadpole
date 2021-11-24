@@ -505,9 +505,8 @@ class Project:
             self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
             self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
             self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
-        
-        self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
-        self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+            self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
+            self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
         downloadTeams(self)
         counter = 0
         while counter < len(self.members):
@@ -634,11 +633,11 @@ class TadPole():
         self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
         self.createpro = Button(self.frame, text="Create New Project", command=self.create)
         self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
-
-        self.codeBox = Text(self.memberFrame, height=1, width=15)
-        self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
-        self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
-        self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+        if self.username != "guy":
+            self.codeBox = Text(self.memberFrame, height=1, width=15)
+            self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+            self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
+            self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
 
     def joinProject(self):
         joinCode = self.codeBox.get("1.0", "end-1c")
@@ -666,6 +665,7 @@ class TadPole():
         self.passwordLabel.destroy()
         self.passwordEntry.destroy()
         self.loginButton.destroy()
+        self.RegisterButton.destroy()
         # self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.username = username
