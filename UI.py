@@ -1,6 +1,7 @@
 from tkinter import *
 import pymysql as db
 import random
+import logintest
 # import time
 
     # connection = db.connect(
@@ -557,11 +558,23 @@ class TadPole():
         self.frame.place(relx = 0.5, rely = 0.5, anchor = "center")
         self.frame.configure(bg="#0cf7e0")
 
-        self.User1 = Button(self.frame, text="Leader", command=self.leader)
+        '''self.User1 = Button(self.frame, text="Leader", command=self.leader)
         self.User1.grid(row=1,column=1, padx=10, pady=10)
 
         self.User2 = Button(self.frame, text="Member", command=self.member)
-        self.User2.grid(row=1,column=2, padx=10, pady=10)
+        self.User2.grid(row=1,column=2, padx=10, pady=10)'''
+
+        #username label and text entry box
+        usernameLabel = Label(self.frame, text="Username").grid(row=0,column=0)
+        username = StringVar()
+        usernameEntry = Entry(self.frame, textvariable=username).grid(row=0, column=1)  
+        #password label and password entry box
+        passwordLabel = Label(self.frame,text="Password").grid(row=1, column=0)  
+        password = StringVar()
+        passwordEntry = Entry(self.frame, textvariable=password, show='*').grid(row=1, column=1)  
+
+        #login button
+        loginButton = Button(self.frame, text="Login", command=logintest.login(username, password)).grid(row=4, column=0)
 
 
     def leader(self):
