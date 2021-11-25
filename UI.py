@@ -61,12 +61,13 @@ def get_lilypad_by_id(self, lilypad_id):
 
 def downloadTeams(project):
     connection, cursor = connectToDatabase()
-    memberDisplay = []
+    memberDisplay = [member(project.leader, [])]
     cursor.execute("""SELECT * FROM Users u cross Join Project_Membership pm WHERE u.Username = pm.Username and pm.Project_ID = %s;""", project.id)
     for row in cursor.fetchall():
         name = row['Username']
         project_above = project
-        memberDisplay.append(member(name, []))
+        if name != project.leader:
+            memberDisplay.append(member(name, []))
     project_above.addMembers(memberDisplay)
     connection.commit()
     disconnectFromDatabase(connection, cursor)
@@ -298,6 +299,7 @@ class LilyPad:
         self.button = Button(self.pondAbove.lilypadframe, text=self.name, command=self.view)
         self.button.grid(row=1, column=column, padx=10, pady=10, sticky="w")
 
+
 class Pond:
     def __init__(self, id, name, canvas, projectAbove):
         self.lilypads = []
@@ -491,6 +493,7 @@ class TadPole():
         self.textbox = None
         self.createpro = None
         self.loginErrorLabel = None
+        self.registrationErrorLabel = None
         self.creation = False
         self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
@@ -565,43 +568,38 @@ class TadPole():
         username = escape(username.get()).strip()
         password = escape(password.get())
         password2 = escape(password2.get())
-        registrationErrorLabel = None
-        if registrationErrorLabel:
-            registrationErrorLabel.destroy()
+        if self.registrationErrorLabel:
+            self.registrationErrorLabel.destroy()
         if not username or not password or not password2:
-            print("Error: You must enter a user name and password.")
-            registrationErrorLabel = Label(self.frame,text="Error: You must enter a user name and password.")
-            registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error: You must enter a user name and password.")
+            self.registrationErrorLabel.grid(row=8, column=1)
         elif len(username) > 20:
-            print("Error: Your username may not exceed 20 characters.")
-            registrationErrorLabel = Label(self.frame,text="Error: Your username may not exceed 20 characters.")
-            registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error: Your username may not exceed 20 characters.")
+            self.registrationErrorLabel.grid(row=8, column=1)
         elif password != password2:
-            print("Error: Your passwords must match.")
-            registrationErrorLabel = Label(self.frame,text="Error: Your passwords must match.")
-            registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error: Your passwords must match.")
+            self.registrationErrorLabel.grid(row=8, column=1)
         elif len(password) > 20:
-            print("Error: Your password is too long.")
-            registrationErrorLabel = Label(self.frame,text="Error: Your password is too long.")
-            registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error: Your password is too long.")
+            self.registrationErrorLabel.grid(row=8, column=1)
         else:
             connection, cursor = connectToDatabase()
             cursor.execute("""SELECT * FROM Users
                                 WHERE Username = %s""", (username))
             if cursor.rowcount != 0:
-                print("Error: Username already taken.")
+                self.registrationErrorLabel = Label(self.frame,text="Error: Username already taken.")
+                self.registrationErrorLabel.grid(row=8, column=1)
             else:
-                print("Success!")
                 cursor.execute("""INSERT INTO Users
                                 VALUES(%s, %s, "email")""", (username, password))
                 connection.commit()
-            disconnectFromDatabase(connection, cursor)
-            self.registerButton.destroy()
-            if registrationErrorLabel:
-                registrationErrorLabel.destroy()
-            self.password2Label.destroy()
-            self.password2Entry.destroy()
-            self.member(username)
+                disconnectFromDatabase(connection, cursor)
+                self.registerButton.destroy()
+                if self.registrationErrorLabel:
+                    self.registrationErrorLabel.destroy()
+                self.password2Label.destroy()
+                self.password2Entry.destroy()
+                self.member(username)
 
     def leader(self):
         #self.User1.destroy()
