@@ -539,7 +539,7 @@ class TadPole():
                             WHERE Username = %s
                             AND Pword = %s""", (username, password))
         if cursor.rowcount == 0:
-            self.loginErrorLabel = Label(self.frame,text="Error: incorrect user name or password")
+            self.loginErrorLabel = Label(self.frame,text="Error: incorrect user name or password.")
             self.loginErrorLabel.grid(row=8, column=1)
         else:
             self.member(username)
@@ -549,14 +549,25 @@ class TadPole():
         username = escape(username.get()).strip()
         password = escape(password.get())
         password2 = escape(password2.get())
+        registrationErrorLabel = None
+        if registrationErrorLabel:
+            registrationErrorLabel.destroy()
         if not username or not password or not password2:
             print("Error: You must enter a user name and password.")
+            registrationErrorLabel = Label(self.frame,text="Error: You must enter a user name and password.")
+            registrationErrorLabel.grid(row=8, column=1)
         elif len(username) > 20:
             print("Error: Your username may not exceed 20 characters.")
+            registrationErrorLabel = Label(self.frame,text="Error: Your username may not exceed 20 characters.")
+            registrationErrorLabel.grid(row=8, column=1)
         elif password != password2:
             print("Error: Your passwords must match.")
+            registrationErrorLabel = Label(self.frame,text="Error: Your passwords must match.")
+            registrationErrorLabel.grid(row=8, column=1)
         elif len(password) > 20:
             print("Error: Your password is too long.")
+            registrationErrorLabel = Label(self.frame,text="Error: Your password is too long.")
+            registrationErrorLabel.grid(row=8, column=1)
         else:
             connection, cursor = connectToDatabase()
             cursor.execute("""SELECT * FROM Users
@@ -570,6 +581,8 @@ class TadPole():
                 connection.commit()
             disconnectFromDatabase(connection, cursor)
             self.registerButton.destroy()
+            if registrationErrorLabel:
+                registrationErrorLabel.destroy()
             self.password2Label.destroy()
             self.password2Entry.destroy()
             self.member(username)
