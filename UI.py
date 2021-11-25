@@ -558,8 +558,9 @@ class TadPole():
                             WHERE Username = %s
                             AND Pword = %s""", (username, password))
         if cursor.rowcount == 0:
-            self.loginErrorLabel = Label(self.frame,text="Error: incorrect user name or password.")
-            self.loginErrorLabel.grid(row=8, column=1)
+            if not self.loginErrorLabel:
+                self.loginErrorLabel = Label(self.frame,text="Error: incorrect username or password.")
+                self.loginErrorLabel.grid(row=8, column=1)
         else:
             self.member(username)
         disconnectFromDatabase(connection, cursor)
@@ -682,5 +683,4 @@ class TadPole():
 root = Tk()
 TadpoleUI = TadPole(root)
 root.mainloop()
-
 
