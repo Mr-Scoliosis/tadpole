@@ -424,27 +424,43 @@ class Project:
             self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
             self.Above.memberFrame.configure(bg="#00918a")
 
-        self.Above.currentProject = self
-        self.Above.currentProject.button.configure(bg="#aaaacc")
+        if self.Above.currentProject != self:
+            self.Above.currentProject = self
+            self.Above.currentProject.button.configure(bg="#aaaacc")
 
-        self.ponds = downloadPonds(self)
-        i = 0
-        while i < len(self.ponds):
-            self.ponds[i].displayAll(i)
-            i += 1
+            self.ponds = downloadPonds(self)
+            i = 0
+            while i < len(self.ponds):
+                self.ponds[i].displayAll(i)
+                i += 1
 
-        if self.Above.username == self.leader:
-            self.textbox = Text(self.pondframe, height=1, width=15)
-            self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
-            self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
-            self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
-            self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
-            self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
-        downloadTeams(self)
-        counter = 0
-        while counter < len(self.members):
-            self.members[counter].display(counter+1, self.Above.memberFrame)
-            counter += 1 
+            if self.Above.username == self.leader:
+                self.textbox = Text(self.pondframe, height=1, width=15)
+                self.textbox.grid(row=1,column=len(self.ponds)+1, padx=10, pady=10, sticky="w")
+                self.createpro = Button(self.pondframe, text="Create New Pond", command=self.create)
+                self.createpro.grid(row=1,column=len(self.ponds)+2, padx=10, pady=10, sticky="w")
+                self.random = Button(self.Above.memberFrame, text="Generate Invite Code", command=self.randomNumber)
+                self.random.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+
+                self.Above.codeBox.destroy()
+                self.Above.random.destroy()
+            else:
+                self.Above.codeBox = Text(self.Above.memberFrame, height=1, width=15)
+                self.Above.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+                self.Above.random = Button(self.Above.memberFrame, text="Join Project", command=self.Above.joinProject)
+                self.Above.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+
+            downloadTeams(self)
+            counter = 0
+            while counter < len(self.members):
+                self.members[counter].display(counter+1, self.Above.memberFrame)
+                counter += 1
+        else:
+            self.Above.currentProject = None
+            self.Above.codeBox = Text(self.Above.memberFrame, height=1, width=15)
+            self.Above.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+            self.Above.random = Button(self.Above.memberFrame, text="Join Project", command=self.Above.joinProject)
+            self.Above.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
         
     def randomNumber(self):
         randomCode = ""
@@ -617,11 +633,11 @@ class TadPole():
         self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
         self.createpro = Button(self.frame, text="Create New Project", command=self.create)
         self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
-        if self.username != "guy":
-            self.codeBox = Text(self.memberFrame, height=1, width=15)
-            self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
-            self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
-            self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
+
+        self.codeBox = Text(self.memberFrame, height=1, width=15)
+        self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
+        self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
+        self.random.grid(row=0,column=2, padx=10, pady=10, sticky="w")
 
     def joinProject(self):
         joinCode = self.codeBox.get("1.0", "end-1c")
