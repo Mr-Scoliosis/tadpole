@@ -2,6 +2,7 @@ from tkinter import *
 import pymysql as db
 import random
 from functools import partial
+from html import escape
 # import time
 
     # connection = db.connect(
@@ -15,16 +16,21 @@ from functools import partial
     # cursor.close()
     # connection.close()
 
+def connectToDatabase():
+    connection = db.connect(
+            host='cs1.ucc.ie',
+            user='ld8',
+            password='soodi',
+            database='cs2208_ld8')
+    cursor = connection.cursor(db.cursors.DictCursor)
+    return connection, cursor
 
-
+def disconnectFromDatabase(connection, cursor):
+    cursor.close()
+    connection.close()
 
 def downloadProjects(self):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""SELECT * FROM Projects p CROSS JOIN Project_Membership pm WHERE pm.Project_ID = p.ID && pm.Username = %s""", (self.username))
     Projects = []
     for row in cursor.fetchall():
@@ -34,8 +40,7 @@ def downloadProjects(self):
         Projects.append(Project(id, leader, name, self.frame, self.can, self.root))
     
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
 
     return Projects
 
@@ -55,12 +60,7 @@ def get_lilypad_by_id(self, lilypad_id):
             return i
 
 def downloadTeams(project):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     memberDisplay = []
     cursor.execute("""SELECT * FROM Users u cross Join Project_Membership pm WHERE u.Username = pm.Username and pm.Project_ID = %s;""", project.id)
     for row in cursor.fetchall():
@@ -69,17 +69,11 @@ def downloadTeams(project):
         memberDisplay.append(member(name, []))
     project_above.addMembers(memberDisplay)
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
 
 
 def downloadPonds(project):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     ponds = []
     cursor.execute("""SELECT * FROM Ponds p WHERE p.Project_ID = %i""" % project.id)
     for row in cursor.fetchall():
@@ -88,18 +82,12 @@ def downloadPonds(project):
         project_above = project
         ponds.append(Pond(id, name, project.canvas, project_above))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return ponds
 
 
 def downloadLilypads(pond):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     lilypads = []
     cursor.execute("""SELECT * FROM Lilypads l WHERE l.Pond_ID = %i""" % pond.id)
     for row in cursor.fetchall():
@@ -108,18 +96,12 @@ def downloadLilypads(pond):
         pond_above = pond
         lilypads.append(LilyPad(id, name, pond.canvas, pond_above))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return lilypads
 
 
 def downloadTasks(lilypad):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     tasks = []
     cursor.execute("""SELECT * FROM Tasks t WHERE t.Lilypad_ID = %i""" % lilypad.id)
     #the descrpt variable is written this way as description is a keyword in
@@ -133,127 +115,78 @@ def downloadTasks(lilypad):
         lilypad_above = lilypad
         tasks.append(Task(id, name, descrpt, deadline, status, lilypad_above.canvas, lilypad_above))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return tasks
 
 def insertProject(leaderName, projectName):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""INSERT INTO Projects(Leader, Name, Token) Values(%s, %s, %s)""", (leaderName, projectName, None))
     cursor.execute("""SELECT MAX(ID) FROM Projects""")
     for row in cursor.fetchall():
         id = row["MAX(ID)"]
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return id
 
 def insertPond(pondName, projectID):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""INSERT INTO Ponds(Name, Project_ID) Values(%s, %s)""", (pondName, projectID))
     cursor.execute("""SELECT MAX(ID) FROM Ponds""")
     for row in cursor.fetchall():
         id = row["MAX(ID)"]
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return id
 
 def insertLilyPad(lilypadName, pondID):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""INSERT INTO Lilypads(Name, Pond_ID) Values(%s, %s)""", (lilypadName, pondID))
     cursor.execute("""SELECT MAX(ID) FROM Lilypads""")
     for row in cursor.fetchall():
         id = row["MAX(ID)"]
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return id
 
 def insertTask(taskName, taskDescription, taskDeadline, pondID):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""INSERT INTO Tasks(Name, Dscrpt, Deadline, Status, Lilypad_ID) Values(%s, %s, %s, %s, %s)""", (taskName, taskDescription, taskDeadline, 0, pondID))
     cursor.execute("""SELECT MAX(ID) FROM Tasks""")
     for row in cursor.fetchall():
         id = row["MAX(ID)"]
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return id
 
 def updateTaskStatus(taskID, Status):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""Update Tasks SET Status = %s WHERE ID = %s""", (Status, taskID))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
 
 def updateInviteCode(project, randomCode):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""Update Projects p SET Token = %s WHERE p.ID = %s""", (randomCode, project.id))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
 
 
 def joinProject(UI, token):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""SELECT * FROM Projects WHERE Token = %s""", (token))
     Projects = []
     for row in cursor.fetchall():
         id = row['ID']
     cursor.execute("""INSERT INTO Project_Membership Values(%s, %s)""", (UI.username, id))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return Projects
 
 def addMember(self, project):
-    connection = db.connect(
-        host='cs1.ucc.ie',
-        user='ld8',
-        password='soodi',
-        database='cs2208_ld8')
-    cursor = connection.cursor(db.cursors.DictCursor)
+    connection, cursor = connectToDatabase()
     cursor.execute("""INSERT INTO Project_Membership Values(%s, %s)""", (self.username, project.id))
     connection.commit()
-    cursor.close()
-    connection.close()
+    disconnectFromDatabase(connection, cursor)
     return
 
 class Task:
@@ -512,7 +445,6 @@ class Project:
         while counter < len(self.members):
             self.members[counter].display(counter+1, self.Above.memberFrame)
             counter += 1 
-
         
     def randomNumber(self):
         randomCode = ""
@@ -531,7 +463,6 @@ class member():
         self.projects = projects
         self.Above = TadpoleUI
 
-
     def display(self, row, frame):
         self.label = Label(frame, text=self.name)
         self.label.grid(row=row, column=1, padx=10, pady=10, sticky="w")
@@ -543,6 +474,7 @@ class TadPole():
         self.currentProject = None
         self.textbox = None
         self.createpro = None
+        self.loginErrorLabel = None
         self.creation = False
         self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
@@ -578,34 +510,73 @@ class TadPole():
         loginCommand = partial(self.login, username, password)
         self.loginButton = Button(self.frame, text="Login", command=loginCommand)
         self.loginButton.grid(row=4, column=1)
-        #register
-        self.RegisterButton = Button(self.frame, text="Register", command=loginCommand)
-        self.RegisterButton.grid(row=6, column=1)
-
+        #register instead button
+        registerInsteadCommand = partial(self.registerInstead, username, password)
+        self.registerInsteadButton = Button(self.frame, text="Register Instead", command=registerInsteadCommand)
+        self.registerInsteadButton.grid(row=6, column=1)
     
+    def registerInstead(self, username, password):
+        self.loginButton.destroy()
+        self.registerInsteadButton.destroy()
+        if self.loginErrorLabel:
+            self.loginErrorLabel.destroy()
+        #password2 label and password2 entry box
+        self.password2Label = Label(self.frame,text="Confirm Password")
+        self.password2Label.grid(row=2, column=0)
+        password2 = StringVar()
+        self.password2Entry = Entry(self.frame, textvariable=password2, show='*')
+        self.password2Entry.grid(row=2, column=1)
+        #register
+        registerCommand = partial(self.register, username, password, password2)
+        self.registerButton = Button(self.frame, text="Register", command=registerCommand)
+        self.registerButton.grid(row=6, column=1)
+
     def login(self, username, password):
-        username = username.get()
-        password = password.get()
-        connection = db.connect(
-            host='cs1.ucc.ie',
-            user='ld8',
-            password='soodi',
-            database='cs2208_ld8')
-        cursor = connection.cursor(db.cursors.DictCursor)
+        username = escape(username.get()).strip()
+        password = escape(password.get())
+        connection, cursor = connectToDatabase()
         cursor.execute("""SELECT * FROM Users
                             WHERE Username = %s
                             AND Pword = %s""", (username, password))
         if cursor.rowcount == 0:
-            print("Error: incorrect user name or password")
+            self.loginErrorLabel = Label(self.frame,text="Error: incorrect user name or password")
+            self.loginErrorLabel.grid(row=8, column=1)
         else:
-            print("Success!")
             self.member(username)
-        cursor.close()
-        connection.close()
+        disconnectFromDatabase(connection, cursor)
+    
+    def register(self, username, password, password2):
+        username = escape(username.get()).strip()
+        password = escape(password.get())
+        password2 = escape(password2.get())
+        if not username or not password or not password2:
+            print("Error: You must enter a user name and password.")
+        elif len(username) > 20:
+            print("Error: Your username may not exceed 20 characters.")
+        elif password != password2:
+            print("Error: Your passwords must match.")
+        elif len(password) > 20:
+            print("Error: Your password is too long.")
+        else:
+            connection, cursor = connectToDatabase()
+            cursor.execute("""SELECT * FROM Users
+                                WHERE Username = %s""", (username))
+            if cursor.rowcount != 0:
+                print("Error: Username already taken.")
+            else:
+                print("Success!")
+                cursor.execute("""INSERT INTO Users
+                                VALUES(%s, %s, "email")""", (username, password))
+                connection.commit()
+            disconnectFromDatabase(connection, cursor)
+            self.registerButton.destroy()
+            self.password2Label.destroy()
+            self.password2Entry.destroy()
+            self.member(username)
 
     def leader(self):
-        self.User1.destroy()
-        self.User2.destroy()
+        #self.User1.destroy()
+        #self.User2.destroy()
         self.creation = True
         self.username = "guy"
         self.frame.place(relx=0, rely=0, anchor="nw")
@@ -664,8 +635,12 @@ class TadPole():
         self.usernameEntry.destroy()
         self.passwordLabel.destroy()
         self.passwordEntry.destroy()
-        self.loginButton.destroy()
-        self.RegisterButton.destroy()
+        if self.loginButton:
+            self.loginButton.destroy()
+        if self.registerInsteadButton:
+            self.registerInsteadButton.destroy()
+        if self.loginErrorLabel: 
+            self.loginErrorLabel.destroy()
         # self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.username = username
