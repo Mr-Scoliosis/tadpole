@@ -632,10 +632,11 @@ class TadPole():
             self.Projects[i].displayAll(i)
             i += 1
 
-        self.textbox = Text(self.frame, height=1, width=15)
-        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
-        self.createpro = Button(self.frame, text="Create New Project", command=self.create)
-        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        if not self.textbox:
+            self.textbox = Text(self.frame, height=1, width=15)
+            self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+            self.createpro = Button(self.frame, text="Create New Project", command=self.create)
+            self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
 
         self.codeBox = Text(self.memberFrame, height=1, width=15)
         self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
