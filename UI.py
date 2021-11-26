@@ -403,7 +403,7 @@ class Project:
         self.button = Button(self.frame, text=self.name, command=self.view)
         self.button.grid(row=1,column=column, padx=10, pady=10, sticky="w")
 
-    def view(self):
+    def view(self):  
         if self.Above.currentProject != None:
             # removing previously displayed ponds, lilypads, and tasks
             self.Above.currentProject.pondframe.destroy()
@@ -632,12 +632,11 @@ class TadPole():
             self.Projects[i].displayAll(i)
             i += 1
 
-        if not self.textbox:
-            self.textbox = Text(self.frame, height=1, width=15)
-            self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
-            self.createpro = Button(self.frame, text="Create New Project", command=self.create)
-            self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
-
+        self.textbox = Text(self.frame, height=1, width=15)
+        self.textbox.grid(row=1,column=len(self.Projects)+1, padx=10, pady=10, sticky="w")
+        self.createpro = Button(self.frame, text="Create New Project", command=self.create)
+        self.createpro.grid(row=1,column=len(self.Projects)+2, padx=10, pady=10, sticky="w")
+        
         self.codeBox = Text(self.memberFrame, height=1, width=15)
         self.codeBox.grid(row=0,column=1, padx=10, pady=10, sticky="w")
         self.random = Button(self.memberFrame, text="Join Project", command=self.joinProject)
@@ -661,6 +660,8 @@ class TadPole():
         # send data to database
         self.Projects.append(projectButton)
         self.showProjects()
+        self.currentProject = projectButton
+        projectButton.view()
 
     def member(self, username):
         # this definitely doesnt work
