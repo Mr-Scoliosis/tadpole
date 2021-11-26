@@ -578,24 +578,24 @@ class TadPole():
         if self.registrationErrorLabel:
             self.registrationErrorLabel.destroy()
         if not username or not password or not password2:
-            self.registrationErrorLabel = Label(self.frame,text="Error: You must enter a user name and password.")
-            self.registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error:\n You must enter\n a user name\n and password.")
+            self.registrationErrorLabel.grid(row=9, column=1)
         elif len(username) > 20:
-            self.registrationErrorLabel = Label(self.frame,text="Error: Your username may not exceed 20 characters.")
-            self.registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error:\n Your username\n may not exceed\n 20 characters.")
+            self.registrationErrorLabel.grid(row=9, column=1)
         elif password != password2:
-            self.registrationErrorLabel = Label(self.frame,text="Error: Your passwords must match.")
-            self.registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error:\n Your passwords\n must match.")
+            self.registrationErrorLabel.grid(row=9, column=1)
         elif len(password) > 20:
-            self.registrationErrorLabel = Label(self.frame,text="Error: Your password is too long.")
-            self.registrationErrorLabel.grid(row=8, column=1)
+            self.registrationErrorLabel = Label(self.frame,text="Error:\n Your password\n is too long.")
+            self.registrationErrorLabel.grid(row=9, column=1)
         else:
             connection, cursor = connectToDatabase()
             cursor.execute("""SELECT * FROM Users
                                 WHERE Username = %s""", (username))
             if cursor.rowcount != 0:
-                self.registrationErrorLabel = Label(self.frame,text="Error: Username already taken.")
-                self.registrationErrorLabel.grid(row=8, column=1)
+                self.registrationErrorLabel = Label(self.frame,text="Error:\n Username\n already taken.")
+                self.registrationErrorLabel.grid(row=9, column=1)
             else:
                 cursor.execute("""INSERT INTO Users
                                 VALUES(%s, %s, "email")""", (username, password))
