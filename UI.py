@@ -234,7 +234,6 @@ class Task:
             self.status = 0
 
 
-
 class LilyPad:
     def __init__(self, id, name, Canvas, pondAbove):
         self.tasks = []
@@ -553,6 +552,8 @@ class TadPole():
         registerCommand = partial(self.register, username, password, password2)
         self.registerButton = Button(self.frame, text="Register", command=registerCommand)
         self.registerButton.grid(row=6, column=1)
+        self.returntoLogin = Button(self.frame, text="Return to login", command=registerCommand)
+        self.returntoLogin.grid(row=8, column=1)
 
     def login(self, username, password):
         username = escape(username.get()).strip()
@@ -662,6 +663,8 @@ class TadPole():
         self.showProjects()
         self.currentProject = projectButton
         projectButton.view()
+        projectButton.view()
+
 
     def member(self, username):
         # this definitely doesnt work
@@ -675,6 +678,8 @@ class TadPole():
             self.registerInsteadButton.destroy()
         if self.loginErrorLabel: 
             self.loginErrorLabel.destroy()
+        if self.returntoLogin:
+            self.returntoLogin.destroy()
         # self.creation = True
         self.frame.place(relx=0, rely=0, anchor="nw")
         self.username = username
