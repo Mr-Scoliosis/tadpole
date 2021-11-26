@@ -379,6 +379,7 @@ class Project:
         self.currentPond = None
         self.leader = leader
         self.id = id
+        self.new_pond = False
 
     def addMembers(self, membering):
         self.members = membering
@@ -392,6 +393,7 @@ class Project:
         self.createpro.destroy() # they are then recreated wh showProjects() is ran
         # send data to database
         self.ponds.append(pondButton)
+        self.new_pond = True
         self.view()
 
     def addPond(self, pondtoadd):
@@ -426,7 +428,7 @@ class Project:
             self.Above.memberFrame.place(relx=0.72, rely=0, anchor="nw", width=400, height=700)
             self.Above.memberFrame.configure(bg="#00918a")
 
-        if self.Above.currentProject != self:
+        if self.Above.currentProject != self or self.new_pond == True:
             self.Above.currentProject = self
             self.Above.currentProject.button.configure(bg="#aaaacc")
 
@@ -457,6 +459,8 @@ class Project:
             while counter < len(self.members):
                 self.members[counter].display(counter+1, self.Above.memberFrame)
                 counter += 1
+            
+            self.new_pond = False
         else:
             self.Above.currentProject = None
             self.Above.codeBox = Text(self.Above.memberFrame, height=1, width=15)
