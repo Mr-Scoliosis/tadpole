@@ -497,6 +497,7 @@ class TadPole():
         self.createpro = None
         self.loginErrorLabel = None
         self.registrationErrorLabel = None
+        self.returntoLogin = None
         self.creation = False
         self.can = Canvas(root, width=1400, height=700)
         self.can.configure(bg="#0cf7e0")
